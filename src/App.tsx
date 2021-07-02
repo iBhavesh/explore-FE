@@ -1,6 +1,7 @@
 import { Switch, Route } from "react-router-dom";
 import "./App.css";
 import RegisterPage from "./pages/RegisterPage";
+import LoginPage from "./pages/LoginPage";
 import AuthOnly from "./components/AuthOnly";
 
 function App() {
@@ -11,8 +12,11 @@ function App() {
           <h1>Home</h1>
         </AuthOnly>
       </Route>
-      <Route exact path="/login">
+      <Route exact path="/register">
         <RegisterPage />
+      </Route>
+      <Route exact path="/login">
+        <LoginPage />
       </Route>
       <Route path="/profile">
         <AuthOnly>Hello</AuthOnly>
