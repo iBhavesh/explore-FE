@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { MuiPickersUtilsProvider } from "@material-ui/pickers";
 import DateFnsUtils from "@date-io/date-fns";
 import Button from "@material-ui/core/Button";
+import MenuItem from "@material-ui/core/MenuItem";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { TextField } from "formik-material-ui";
 import Link from "@material-ui/core/Link";
@@ -16,7 +17,7 @@ import { DatePicker } from "formik-material-ui-pickers";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    marginTop: theme.spacing(8),
+    marginTop: theme.spacing(4),
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -32,13 +33,19 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  gender: {
+    minWidth: "100px",
+  },
 }));
+
+const date = new Date();
+date.setFullYear(date.getFullYear() - 13);
 
 const initialValues = {
   first_name: "",
   last_name: "",
   email: "",
-  date_of_birth: new Date(),
+  date_of_birth: date,
   password: "",
   confirm_password: "",
 };
@@ -49,9 +56,15 @@ const validationSchema = Yup.object({
   first_name: Yup.string().required("Required"),
   last_name: Yup.string().required("Required"),
   email: Yup.string().email("Invalid email address").required("Required"),
-  date_of_birth: Yup.date().required("Required"),
-  password: Yup.string().required("Required"),
-  confirm_password: Yup.string().required("Required"),
+  date_of_birth: Yup.date()
+    .required("Date of birth is required")
+    .max(date, "You should be atleast 13 years old to signup"),
+  password: Yup.string()
+    .required("Password is required")
+    .min(8, "Password should be minimim 8 characters"),
+  confirm_password: Yup.string()
+    .required("Confirm password is required")
+    .oneOf([Yup.ref("password")], "Passwords do not match"),
 });
 
 const AuthPage = () => {
@@ -117,11 +130,38 @@ const AuthPage = () => {
                   <Field
                     component={DatePicker}
                     inputVariant="outlined"
+                    format="yyyy/MM/dd"
                     fullWidth
                     id="date_of_birth"
                     label="Date of birth"
                     name="date_of_birth"
                   />
+                </Grid>
+                <Grid item xs={12}>
+                  <Field
+                    className={classes.gender}
+                    component={TextField}
+                    type="text"
+                    name="gender"
+                    label="Gender"
+                    select
+                    variant="outlined"
+                    defaultValue="Male"
+                    margin="normal"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                  >
+                    <MenuItem key="Male" value="Male">
+                      Male
+                    </MenuItem>
+                    <MenuItem key="Female" value="Female">
+                      Female
+                    </MenuItem>
+                    <MenuItem key="Other" value="Other">
+                      Other
+                    </MenuItem>
+                  </Field>
                 </Grid>
                 <Grid item xs={12}>
                   <Field
@@ -157,7 +197,11 @@ const AuthPage = () => {
               </Button>
               <Grid container justify="flex-end">
                 <Grid item>
-                  <Link component={RouterLink} to="/register" variant="body2">
+                  <Link
+                    component={RouterLink}
+                    to={`/register?to=${to}`}
+                    variant="body2"
+                  >
                     Don't have an account? Sign up
                   </Link>
                 </Grid>
