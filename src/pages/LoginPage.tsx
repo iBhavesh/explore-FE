@@ -11,6 +11,7 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 const useStyles = makeStyles((theme) => ({
   pageWrapper: {
@@ -31,11 +32,15 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  progress: {
+    margin: theme.spacing(3, "auto"),
+    maxWidth: "40px",
+  },
   heading: {
     marginTop: "10px",
-    fontFamily: "Yellowtail",
+    fontFamily: "Eagle Lake",
     fontSize: "3.0rem",
-    color: "#3e76bd",
+    color: "#04009A",
   },
 }));
 
@@ -110,16 +115,22 @@ const RegisterPage = () => {
                     />
                   </Grid>
                 </Grid>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  color="primary"
-                  className={classes.submit}
-                  disabled={isSubmitting}
-                >
-                  Sign In
-                </Button>
+                {isSubmitting ? (
+                  <div className={classes.progress}>
+                    <CircularProgress />
+                  </div>
+                ) : (
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    // disabled={isSubmitting}
+                  >
+                    Sign In
+                  </Button>
+                )}
                 <Grid container justify="flex-end">
                   <Grid item>
                     <Link

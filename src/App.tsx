@@ -1,8 +1,11 @@
+import { Suspense, lazy } from "react";
 import { Switch, Route } from "react-router-dom";
 import "./App.css";
-import RegisterPage from "./pages/RegisterPage";
-import LoginPage from "./pages/LoginPage";
 import AuthOnly from "./components/AuthOnly";
+import CircularIndeterminate from "./components/UI/CircularIndeterminate";
+
+const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
 
 function App() {
   return (
@@ -13,10 +16,14 @@ function App() {
         </AuthOnly>
       </Route>
       <Route exact path="/register">
-        <RegisterPage />
+        <Suspense fallback={<CircularIndeterminate />}>
+          <RegisterPage />
+        </Suspense>
       </Route>
       <Route exact path="/login">
-        <LoginPage />
+        <Suspense fallback={<CircularIndeterminate />}>
+          <LoginPage />
+        </Suspense>
       </Route>
       <Route path="/profile">
         <AuthOnly>Hello</AuthOnly>

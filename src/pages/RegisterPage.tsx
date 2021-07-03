@@ -15,6 +15,17 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { DatePicker } from "formik-material-ui-pickers";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+import axios from "axios";
+import { useState } from "react";
+import { useAppDispatch } from "../app/hooks";
+import { login } from "../features/auth/authSlice";
+
+function Alert(props: AlertProps) {
+  return <MuiAlert elevation={3} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles((theme) => ({
   pageWrapper: {
@@ -35,14 +46,18 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  progress: {
+    margin: theme.spacing(3, "auto"),
+    maxWidth: "40px",
+  },
   gender: {
     minWidth: "100px",
   },
   heading: {
     marginTop: "10px",
-    fontFamily: "Yellowtail",
+    fontFamily: "Eagle Lake",
     fontSize: "3.0rem",
-    color: "#3e76bd",
+    color: "#04009A",
   },
 }));
 
@@ -76,20 +91,36 @@ const validationSchema = Yup.object({
 });
 
 const RegisterPage = () => {
+  const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const dispatch = useAppDispatch();
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
   const to = useQuery().get("to");
   // const history = useHistory();
-
   let loginRoute = "/login";
   if (to) loginRoute = "/login?to=" + to;
 
   const classes = useStyles();
 
+  const handleSnackBarClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
+      <Snackbar
+        open={open}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        onClose={handleSnackBarClose}
+        autoHideDuration={3000}
+      >
+        <Alert icon={false} severity="error" onClose={handleSnackBarClose}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <Paper className={classes.paper} elevation={3}>
         <div className={classes.pageWrapper}>
           <Typography className={classes.heading} component="h1" variant="h5">
@@ -98,11 +129,28 @@ const RegisterPage = () => {
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
-            onSubmit={(values, { setSubmitting }) => {
-              setTimeout(() => {
-                setSubmitting(false);
-                alert(JSON.stringify(values, null, 2));
-              }, 500);
+            onSubmit={async (values, { setSubmitting }) => {
+              // console.log(process.env.REACT_APP_API);
+              const dob =
+                values.date_of_birth.getFullYear() +
+                "-" +
+                (+values.date_of_birth.getMonth() + 1) +
+                "-" +
+                values.date_of_birth.getDate();
+              try {
+                const response = await axios.post(
+                  process.env.REACT_APP_API + "user/register",
+                  { ...values, date_of_birth: dob }
+                );
+                console.log(response.data);
+                dispatch(login(response.data));
+              } catch (e) {
+                console.log(typeof e);
+                console.dir(e.response);
+                setErrorMessage(e.response.data.email);
+                setOpen(true);
+              }
+              setSubmitting(false);
             }}
           >
             {({ submitForm, isSubmitting, touched, errors }) => (
@@ -199,16 +247,22 @@ const RegisterPage = () => {
                       />
                     </Grid>
                   </Grid>
-                  <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    color="primary"
-                    className={classes.submit}
-                    disabled={isSubmitting}
-                  >
-                    Sign Up
-                  </Button>
+
+                  {isSubmitting ? (
+                    <div className={classes.progress}>
+                      <CircularProgress />
+                    </div>
+                  ) : (
+                    <Button
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      color="primary"
+                      className={classes.submit}
+                    >
+                      Sign Up
+                    </Button>
+                  )}
                   <Grid container justify="flex-end">
                     <Grid item>
                       <Link
