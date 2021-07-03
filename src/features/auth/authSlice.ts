@@ -40,6 +40,7 @@ const refreshToken = localStorage.getItem("accessToken");
 if (token && refreshToken) {
   initialState.accessToken = setUserDetails(token);
   initialState.refreshToken = refreshToken;
+  initialState.isAuthenticated = true;
 }
 
 export const authSlice = createSlice({
