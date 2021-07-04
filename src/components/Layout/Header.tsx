@@ -5,7 +5,7 @@ import {
   Theme,
   createStyles,
 } from "@material-ui/core/styles";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useHistory } from "react-router-dom";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
@@ -97,12 +97,28 @@ export default function Header() {
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
     React.useState<null | HTMLElement>(null);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const history = useHistory();
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
   };
 
-  const handleNotificationClick = () => {};
+  const handleNotificationsClick = () => {
+    handleMobileMenuClose();
+    history.push("/notifications");
+  };
+  const handleProfileClick = () => {
+    handleMobileMenuClose();
+    history.push("/profile");
+  };
+  const handleAccountClick = () => {
+    handleMobileMenuClose();
+    history.push("/account");
+  };
+  const handleRequestsClick = () => {
+    handleMobileMenuClose();
+    history.push("/requests");
+  };
 
   const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMobileMoreAnchorEl(event.currentTarget);
@@ -119,7 +135,7 @@ export default function Header() {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
+      <MenuItem onClick={handleRequestsClick}>
         <IconButton color="inherit">
           <Badge color="secondary">
             <PersonAddIcon />
@@ -127,7 +143,7 @@ export default function Header() {
         </IconButton>
         <p>Follow Requests</p>
       </MenuItem>
-      <MenuItem>
+      <MenuItem onClick={handleNotificationsClick}>
         <IconButton color="inherit">
           <Badge color="secondary">
             <NotificationsIcon />
@@ -135,13 +151,13 @@ export default function Header() {
         </IconButton>
         <p>Notifications</p>
       </MenuItem>
-      <MenuItem>
+      <MenuItem onClick={handleProfileClick}>
         <IconButton color="inherit">
           <AccountCircle />
         </IconButton>
         <p>Profile</p>
       </MenuItem>
-      <MenuItem>
+      <MenuItem onClick={handleAccountClick}>
         <IconButton color="inherit">
           <SettingsIcon />
         </IconButton>
@@ -180,26 +196,30 @@ export default function Header() {
           </div>
           <div className={classes.sectionDesktop}>
             <Tooltip title="Follow Requests">
-              <IconButton color="inherit" onClick={handleNotificationClick}>
+              <IconButton color="inherit" onClick={handleRequestsClick}>
                 <Badge color="secondary">
                   <PersonAddIcon />
                 </Badge>
               </IconButton>
             </Tooltip>
             <Tooltip title="Notifications">
-              <IconButton color="inherit" onClick={handleNotificationClick}>
+              <IconButton color="inherit" onClick={handleNotificationsClick}>
                 <Badge color="secondary">
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
             </Tooltip>
             <Tooltip title="Profile">
-              <IconButton color="inherit">
+              <IconButton color="inherit" onClick={handleProfileClick}>
                 <AccountCircle />
               </IconButton>
             </Tooltip>
             <Tooltip title="Account">
-              <IconButton edge="end" color="inherit">
+              <IconButton
+                edge="end"
+                color="inherit"
+                onClick={handleAccountClick}
+              >
                 <SettingsIcon />
               </IconButton>
             </Tooltip>
