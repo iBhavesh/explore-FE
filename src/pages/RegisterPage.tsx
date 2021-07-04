@@ -23,9 +23,9 @@ import { useState } from "react";
 import { useAppDispatch } from "../app/hooks";
 import { login } from "../features/auth/authSlice";
 
-function Alert(props: AlertProps) {
+const Alert = (props: AlertProps) => {
   return <MuiAlert elevation={3} variant="filled" {...props} />;
-}
+};
 
 const useStyles = makeStyles((theme) => ({
   pageWrapper: {
@@ -130,7 +130,6 @@ const RegisterPage = () => {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={async (values, { setSubmitting }) => {
-              // console.log(process.env.REACT_APP_API);
               const dob =
                 values.date_of_birth.getFullYear() +
                 "-" +
@@ -138,16 +137,23 @@ const RegisterPage = () => {
                 "-" +
                 values.date_of_birth.getDate();
               try {
-                const response = await axios.post(
+                let response = await axios.post(
                   process.env.REACT_APP_API + "user/register",
                   { ...values, date_of_birth: dob }
                 );
-                console.log(response.data);
+                response = await axios.post(
+                  process.env.REACT_APP_API + "user/login",
+                  values
+                );
                 dispatch(login(response.data));
               } catch (e) {
-                console.log(typeof e);
-                console.dir(e.response);
-                setErrorMessage(e.response.data.email);
+                let message = "Something went wrong!";
+                if (e.response.data)
+                  for (const key in e.response.data) {
+                    message = e.response.data[key] + "\n";
+                  }
+
+                setErrorMessage(message);
                 setOpen(true);
               }
               setSubmitting(false);

@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { useAppSelector } from "../../app/hooks";
 import Header from "./Header";
 
 type Props = {
@@ -6,9 +7,10 @@ type Props = {
 };
 
 const Layout = (props: Props) => {
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   return (
     <>
-      <Header />
+      {isAuthenticated ? <Header /> : <></>}
       <main>{props.children}</main>
     </>
   );

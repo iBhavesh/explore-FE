@@ -47,10 +47,12 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout: (state, action) => {
+    logout: (state) => {
       state.accessToken = null;
       state.isAuthenticated = false;
       state.refreshToken = null;
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
     },
     login: (
       state,

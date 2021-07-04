@@ -6,24 +6,28 @@ import AnonymousUserRoute from "./components/Wrappers/AnonymousUserRoute";
 import AuthorizedRoute from "./components/Wrappers/AuthorizedRoute";
 
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
-const LoginPage = lazy(() => import("./pages/LoginPage"));
+const SiginPage = lazy(() => import("./pages/SigninPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const NotificationPage = lazy(() => import("./pages/NotificationPage"));
+const RequestPage = lazy(() => import("./pages/RequestPage"));
+const AccountPage = lazy(() => import("./pages/AccountPage"));
 
 function App() {
   return (
-    <Switch>
-      <AnonymousUserRoute exact path="/register">
-        <Suspense fallback={<CircularIndeterminate />}>
-          <RegisterPage />
-        </Suspense>
-      </AnonymousUserRoute>
-      <AnonymousUserRoute exact path="/login">
-        <Suspense fallback={<CircularIndeterminate />}>
-          <LoginPage />
-        </Suspense>
-      </AnonymousUserRoute>
-      <Layout>
+    <Layout>
+      <Switch>
+        <AnonymousUserRoute exact path="/register">
+          <Suspense fallback={<CircularIndeterminate />}>
+            <RegisterPage />
+          </Suspense>
+        </AnonymousUserRoute>
+        <AnonymousUserRoute exact path="/login">
+          <Suspense fallback={<CircularIndeterminate />}>
+            <SiginPage />
+          </Suspense>
+        </AnonymousUserRoute>
+
         <AuthorizedRoute path="/" exact>
           <Suspense fallback={<CircularIndeterminate />}>
             <HomePage />
@@ -34,11 +38,26 @@ function App() {
             <ProfilePage />
           </Suspense>
         </AuthorizedRoute>
-      </Layout>
-      <Route path="*">
-        <h1>Route doesn't exist</h1>
-      </Route>
-    </Switch>
+        <AuthorizedRoute exact path="/notifications">
+          <Suspense fallback={<CircularIndeterminate />}>
+            <NotificationPage />
+          </Suspense>
+        </AuthorizedRoute>
+        <AuthorizedRoute exact path="/account">
+          <Suspense fallback={<CircularIndeterminate />}>
+            <AccountPage />
+          </Suspense>
+        </AuthorizedRoute>
+        <Route exact path="/requests">
+          <Suspense fallback={<CircularIndeterminate />}>
+            <RequestPage />
+          </Suspense>
+        </Route>
+        <Route path="*">
+          <h2>Page doesn't exist</h2>
+        </Route>
+      </Switch>
+    </Layout>
   );
 }
 

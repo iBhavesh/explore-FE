@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { Link as RouterLink } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 import * as Yup from "yup";
@@ -12,6 +12,16 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+import { useAppDispatch } from "../app/hooks";
+import axios from "axios";
+import { login } from "../features/auth/authSlice";
+import { useState } from "react";
+
+const Alert = (props: AlertProps) => {
+  return <MuiAlert elevation={3} variant="filled" {...props} />;
+};
 
 const useStyles = makeStyles((theme) => ({
   pageWrapper: {
@@ -52,29 +62,46 @@ const initialValues = {
   password: "",
 };
 
-// type Values = typeof initialValues;
-
 const validationSchema = Yup.object({
-  email: Yup.string().email("Invalid email address").required("Required"),
+  email: Yup.string()
+    .email("Invalid email address")
+    .required("Email is required"),
   password: Yup.string()
     .required("Password is required")
     .min(8, "Password should be minimim 8 characters"),
 });
 
-const RegisterPage = () => {
+const SigninPage = () => {
+  const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const dispatch = useAppDispatch();
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
   const to = useQuery().get("to");
   let registerRoute = "/register";
   if (to) registerRoute = "/register?to=" + to;
-  // const history = useHistory();
+  const history = useHistory();
+
+  const handleSnackBarClose = () => {
+    setOpen(false);
+  };
 
   const classes = useStyles();
 
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
+      <Snackbar
+        open={open}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        onClose={handleSnackBarClose}
+        autoHideDuration={3000}
+      >
+        <Alert icon={false} severity="error" onClose={handleSnackBarClose}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <Paper className={classes.paper} elevation={3}>
         <div className={classes.pageWrapper}>
           <Typography className={classes.heading} component="h1" variant="h5">
@@ -83,11 +110,27 @@ const RegisterPage = () => {
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
-            onSubmit={(values, { setSubmitting }) => {
-              setTimeout(() => {
-                setSubmitting(false);
-                // alert(JSON.stringify(values, null, 2));
-              }, 500);
+            onSubmit={async (values, { setSubmitting }) => {
+              try {
+                const response = await axios.post(
+                  process.env.REACT_APP_API + "user/login",
+                  values
+                );
+                console.log(response.data);
+                dispatch(login(response.data));
+                console.log(to);
+                if (to) history.replace(to);
+                else history.replace("/");
+              } catch (e) {
+                let message = "Something went wrong!";
+                if (e.response.data)
+                  for (const key in e.response.data) {
+                    message = e.response.data[key] + "\n";
+                  }
+                setErrorMessage(message);
+                setOpen(true);
+              }
+              setSubmitting(false);
             }}
           >
             {({ submitForm, isSubmitting, touched, errors }) => (
@@ -126,7 +169,6 @@ const RegisterPage = () => {
                     variant="contained"
                     color="primary"
                     className={classes.submit}
-                    // disabled={isSubmitting}
                   >
                     Sign In
                   </Button>
@@ -151,4 +193,4 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default SigninPage;
