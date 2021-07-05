@@ -4,6 +4,7 @@ import {
   makeStyles,
   Theme,
   createStyles,
+  useTheme,
 } from "@material-ui/core/styles";
 import { Link as RouterLink, useHistory } from "react-router-dom";
 import AppBar from "@material-ui/core/AppBar";
@@ -11,15 +12,25 @@ import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import InputBase from "@material-ui/core/InputBase";
 import Badge from "@material-ui/core/Badge";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import SearchIcon from "@material-ui/icons/Search";
+import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import SettingsIcon from "@material-ui/icons/Settings";
 import NotificationsIcon from "@material-ui/icons/Notifications";
-import MoreIcon from "@material-ui/icons/MoreVert";
-import { Link, Tooltip } from "@material-ui/core";
+import {
+  Drawer,
+  Hidden,
+  Link,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Tooltip,
+} from "@material-ui/core";
+import { Divider } from "@material-ui/core";
+
+const drawerWidth = 240;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -89,87 +100,95 @@ const useStyles = makeStyles((theme: Theme) =>
         display: "none",
       },
     },
+    drawer: {
+      [theme.breakpoints.up("md")]: {
+        width: drawerWidth,
+        flexShrink: 0,
+      },
+    },
+    drawerPaper: {
+      width: drawerWidth,
+    },
+    // necessary for content to be below app bar
+    toolbar: theme.mixins.toolbar,
+    appBar: {
+      [theme.breakpoints.up("md")]: {
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: drawerWidth,
+      },
+    },
+    menuButton: {
+      marginRight: theme.spacing(2),
+      [theme.breakpoints.up("md")]: {
+        display: "none",
+      },
+    },
   })
 );
 
-export default function Header() {
-  const classes = useStyles();
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
-    React.useState<null | HTMLElement>(null);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-  const history = useHistory();
+interface Props {
+  /**
+   * Injected by the documentation to work in an iframe.
+   * You won't need it on your project.
+   */
+  window?: () => Window;
+}
 
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
+export default function Header(props: Props) {
+  const classes = useStyles();
+  const history = useHistory();
+  const { window } = props;
+  const theme = useTheme();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const handleNotificationsClick = () => {
-    handleMobileMenuClose();
     history.push("/notifications");
   };
   const handleProfileClick = () => {
-    handleMobileMenuClose();
     history.push("/profile");
   };
   const handleAccountClick = () => {
-    handleMobileMenuClose();
     history.push("/account");
   };
   const handleRequestsClick = () => {
-    handleMobileMenuClose();
     history.push("/requests");
   };
 
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget);
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
   };
 
-  const mobileMenuId = "primary-search-account-menu-mobile";
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-    >
-      <MenuItem onClick={handleRequestsClick}>
-        <IconButton color="inherit">
-          <Badge color="secondary">
+  const drawer = (
+    <div>
+      <div className={classes.toolbar} />
+      <Divider />
+      <List>
+        <ListItem button key="Requests">
+          <ListItemIcon>
             <PersonAddIcon />
-          </Badge>
-        </IconButton>
-        <p>Follow Requests</p>
-      </MenuItem>
-      <MenuItem onClick={handleNotificationsClick}>
-        <IconButton color="inherit">
-          <Badge color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      <MenuItem onClick={handleProfileClick}>
-        <IconButton color="inherit">
-          <AccountCircle />
-        </IconButton>
-        <p>Profile</p>
-      </MenuItem>
-      <MenuItem onClick={handleAccountClick}>
-        <IconButton color="inherit">
-          <SettingsIcon />
-        </IconButton>
-        <p>Account</p>
-      </MenuItem>
-    </Menu>
+          </ListItemIcon>
+          <ListItemText primary="Requests" />
+        </ListItem>
+      </List>
+    </div>
   );
 
+  const container =
+    window !== undefined ? () => window().document.body : undefined;
+
   return (
-    <div className={classes.grow}>
-      <AppBar position="static">
+    <>
+      <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            className={classes.menuButton}
+          >
+            <MenuIcon />
+          </IconButton>
           <Link
             component={RouterLink}
             to="/"
@@ -191,7 +210,6 @@ export default function Header() {
                 root: classes.inputRoot,
                 input: classes.inputInput,
               }}
-              inputProps={{ "aria-label": "search" }}
             />
           </div>
           <div className={classes.sectionDesktop}>
@@ -224,14 +242,39 @@ export default function Header() {
               </IconButton>
             </Tooltip>
           </div>
-          <div className={classes.sectionMobile}>
-            <IconButton onClick={handleMobileMenuOpen} color="inherit">
-              <MoreIcon />
-            </IconButton>
-          </div>
         </Toolbar>
       </AppBar>
-      {renderMobileMenu}
-    </div>
+      <nav className={classes.drawer} aria-label="mailbox folders">
+        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+        <Hidden mdUp implementation="css">
+          <Drawer
+            container={container}
+            variant="temporary"
+            anchor={theme.direction === "rtl" ? "right" : "left"}
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+          >
+            {drawer}
+          </Drawer>
+        </Hidden>
+        <Hidden smDown implementation="css">
+          <Drawer
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+            variant="permanent"
+            open
+          >
+            {drawer}
+          </Drawer>
+        </Hidden>
+      </nav>
+    </>
   );
 }

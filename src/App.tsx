@@ -12,6 +12,7 @@ const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const NotificationPage = lazy(() => import("./pages/NotificationPage"));
 const RequestPage = lazy(() => import("./pages/RequestPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
+const SinglePostPage = lazy(() => import("./pages/SinglePostPage"));
 
 function App() {
   return (
@@ -27,7 +28,6 @@ function App() {
             <SiginPage />
           </Suspense>
         </AnonymousUserRoute>
-
         <AuthorizedRoute path="/" exact>
           <Suspense fallback={<CircularIndeterminate />}>
             <HomePage />
@@ -51,6 +51,11 @@ function App() {
         <Route exact path="/requests">
           <Suspense fallback={<CircularIndeterminate />}>
             <RequestPage />
+          </Suspense>
+        </Route>
+        <Route exact path="/posts/:postId">
+          <Suspense fallback={<CircularIndeterminate />}>
+            <SinglePostPage />
           </Suspense>
         </Route>
         <Route path="*">
