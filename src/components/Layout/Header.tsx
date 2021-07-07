@@ -118,6 +118,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     drawerPaper: {
       width: drawerWidth,
+      background: "linear-gradient(#ffffff,#ededed) no-repeat center fixed",
     },
     // necessary for content to be below app bar
     toolbar: theme.mixins.toolbar,
