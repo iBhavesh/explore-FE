@@ -1,24 +1,25 @@
-import { Grid } from "@material-ui/core";
-import { useState } from "react";
-import { useEffect } from "react";
-import axiosInstance from "../../axios";
+import { Grid, Typography } from "@material-ui/core";
+
+import { useAppSelector } from "../../app/hooks";
 import CircularIndeterminate from "../UI/CircularIndeterminate";
 import PostItem from "./PostItem";
 
 const PostList = () => {
-  const [postList, setPostList] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  useEffect(() => {
-    setIsLoading(true);
-    axiosInstance.get("posts/").then((response: any) => {
-      setPostList(response.data);
-    });
-    setIsLoading(false);
-  }, []);
-  if (isLoading) return <CircularIndeterminate />;
+  const posts = useAppSelector((state) => state.posts.posts);
+  const status = useAppSelector((state) => state.posts.status);
+  const error = useAppSelector((state) => state.posts.error);
+
+  if (status === "loading") return <CircularIndeterminate />;
+  if (error) return <div>{error}</div>;
+  if (status === "succeeded" && posts.length === 0)
+    return (
+      <Grid container direction="column" alignItems="center">
+        <Typography variant="h3">No Posts Found</Typography>
+      </Grid>
+    );
   return (
     <Grid container direction="column" alignItems="center">
-      {postList.map((post) => (
+      {posts.map((post) => (
         <PostItem singlePost={false} key={post.id} post={post} />
       ))}
     </Grid>

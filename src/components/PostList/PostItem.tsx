@@ -10,33 +10,33 @@ import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import { blue } from "@material-ui/core/colors";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import {
-  Divider,
-  Grid,
-  Link,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemSecondaryAction,
-  ListItemText,
-  MenuItem,
-} from "@material-ui/core";
+import { Divider, Grid, Link, MenuItem } from "@material-ui/core";
 import { useState } from "react";
 import {
   FavoriteBorderRounded,
   FavoriteRounded,
-  Delete,
+  ChatBubbleOutlineRounded,
 } from "@material-ui/icons";
 import { useEffect } from "react";
 import axiosInstance from "../../axios";
-import { useAppSelector } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { Menu } from "@material-ui/core";
-import { useHistory } from "react-router-dom";
+import { Route, useHistory } from "react-router-dom";
 import { Skeleton } from "@material-ui/lab";
+import AddCommentForm from "./AddCommentForm";
+import { Post } from "../../features/posts/postsSlice";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
+import CommentList from "./CommentList/CommentList";
+import { fetchPostComments } from "../../features/comments/commentsSlice";
 
 type Props = {
-  post: any;
+  post: Post;
   singlePost: boolean;
+};
+
+const Alert = (props: AlertProps) => {
+  return <MuiAlert elevation={3} variant="filled" {...props} />;
 };
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -68,14 +68,6 @@ const useStyles = makeStyles((theme: Theme) =>
         textDecoration: "underline",
       },
     },
-    list: {
-      width: "100%",
-      maxWidth: 300,
-      backgroundColor: theme.palette.background.paper,
-      [theme.breakpoints.up("sm")]: {
-        maxWidth: 450,
-      },
-    },
     inline: {
       display: "inline",
     },
@@ -85,6 +77,9 @@ const useStyles = makeStyles((theme: Theme) =>
 const PostItem = ({ post, singlePost }: Props) => {
   const classes = useStyles();
   const history = useHistory();
+  const dispatch = useAppDispatch();
+  const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isInitial, setIsInitial] = useState(true);
   const [isImageLoading, setIsImageLoading] = useState(true);
   const user_id = useAppSelector((state) => state.auth.accessToken?.user_id);
@@ -97,33 +92,49 @@ const PostItem = ({ post, singlePost }: Props) => {
     null
   );
   const isMenuOpen = Boolean(menuAnchorEl);
-
+  // console.log("PI", post.id);
   useEffect(() => {
+    // console.log("useEffect", post.id, isInitial);
     if (isInitial) {
       for (let index = 0; index < post.post_reaction.length; index++) {
         const element = post.post_reaction[index];
         if (element.author === user_id) setIsLiked(true);
       }
+      if (post.media_type === "image" || post.media_type === "video")
+        axiosInstance
+          .get(post.media)
+          .then((response) => {
+            setImageUrl(response.data.url);
+            setErrorMessage("Something Went Wrong");
+          })
+          .catch((e) => {
+            setIsImageLoading(false);
+            setErrorMessage("Something Went Wrong");
+          });
+      if (post.author.profile_picture)
+        axiosInstance.get(post.media).then((response) => {
+          setAvatarUrl(response.data.url);
+        });
       setIsInitial(false);
       setLikeCount(post.post_reaction.length);
     }
-  }, [post.post_reaction, isInitial, setIsLiked, user_id, setLikeCount]);
+  }, [
+    post.post_reaction,
+    isInitial,
+    setIsLiked,
+    user_id,
+    setLikeCount,
+    post.id,
+    post.media,
+    post.author.profile_picture,
+    post.media_type,
+  ]);
 
   useEffect(() => {
-    if (post.media_type === "image" || post.media_type === "video")
-      axiosInstance
-        .get(post.media)
-        .then((response) => {
-          setImageUrl(response.data.url);
-        })
-        .catch((e) => {
-          setIsImageLoading(false);
-        });
-    if (post.author.profile_picture)
-      axiosInstance.get(post.media).then((response) => {
-        setAvatarUrl(response.data.url);
-      });
-  }, [post.media, post.author.profile_picture, post.media_type]);
+    if (singlePost) {
+      dispatch(fetchPostComments(post.id));
+    }
+  }, [dispatch, singlePost, post.id]);
 
   const handleTitleClick = () => {
     console.log("Title clicked");
@@ -133,13 +144,21 @@ const PostItem = ({ post, singlePost }: Props) => {
     if (isLiked) {
       setIsLiked(false);
       setLikeCount(likeCount - 1);
-      axiosInstance.delete("posts/" + post.id + "/reaction");
+      axiosInstance
+        .delete("posts/" + post.id + "/reaction")
+        .catch((response) => {
+          setIsLiked(true);
+        });
     } else {
       setIsLiked(true);
       setLikeCount(likeCount + 1);
-      axiosInstance.post("posts/" + post.id + "/reaction", {
-        reaction_type: 1,
-      });
+      axiosInstance
+        .post("posts/" + post.id + "/reaction", {
+          reaction_type: 1,
+        })
+        .catch((response) => {
+          setIsLiked(false);
+        });
     }
   };
 
@@ -151,8 +170,9 @@ const PostItem = ({ post, singlePost }: Props) => {
     setMenuAnchorEl(null);
   };
 
-  const handleViewPostClick = () => {
-    history.push(`/posts/${post.id}`);
+  const handleDeletePostClick = () => {};
+  const handleCommentButtonClick = () => {
+    if (!singlePost) history.push(`/posts/${post.id}`);
   };
 
   const handleImageLoad = () => {
@@ -172,20 +192,34 @@ const PostItem = ({ post, singlePost }: Props) => {
       onClose={handleMenuClose}
     >
       {!singlePost ? (
-        <MenuItem onClick={handleViewPostClick}>
-          <p>View post</p>
+        <MenuItem onClick={handleDeletePostClick}>
+          <p>Delete Post</p>
         </MenuItem>
       ) : null}
     </Menu>
   );
 
+  const handleSnackBarClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Grid item>
+      <Snackbar
+        open={open}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        onClose={handleSnackBarClose}
+        autoHideDuration={3000}
+      >
+        <Alert icon={false} severity="error" onClose={handleSnackBarClose}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <Card className={classes.root}>
         <CardHeader
           avatar={<Avatar className={classes.avatar} src={avatarUrl}></Avatar>}
           action={
-            !singlePost || user_id === post.author.id ? (
+            user_id === post.author.id ? (
               <IconButton onClick={handleMenuOpen}>
                 <MoreVertIcon />
               </IconButton>
@@ -237,6 +271,9 @@ const PostItem = ({ post, singlePost }: Props) => {
           </Typography>
         </CardContent>
         <CardActions disableSpacing>
+          <IconButton onClick={handleCommentButtonClick}>
+            <ChatBubbleOutlineRounded />
+          </IconButton>
           <IconButton onClick={handleFavouriteClick}>
             {isLiked ? (
               <FavoriteRounded style={{ color: "#ea3c3c" }} />
@@ -250,50 +287,11 @@ const PostItem = ({ post, singlePost }: Props) => {
             </Link>
           ) : null}
         </CardActions>
-        <Divider />
-        <List className={classes.list}>
-          <ListItem alignItems="center">
-            <ListItemAvatar>
-              <Avatar src="" />
-            </ListItemAvatar>
-            <ListItemText
-              primary="Super User"
-              secondary={
-                <Typography
-                  component="span"
-                  variant="body2"
-                  className={classes.inline}
-                  color="textPrimary"
-                >
-                  This is a comment
-                </Typography>
-              }
-            />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" aria-label="delete">
-                <Delete />
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-          <ListItem alignItems="center">
-            <ListItemAvatar>
-              <Avatar src="" />
-            </ListItemAvatar>
-            <ListItemText
-              primary="Super User"
-              secondary={
-                <Typography
-                  component="span"
-                  variant="body2"
-                  className={classes.inline}
-                  color="textPrimary"
-                >
-                  This is a comment
-                </Typography>
-              }
-            />
-          </ListItem>
-        </List>
+        <Route path="/posts/:postId">
+          <Divider />
+          <CommentList />
+          <AddCommentForm user_id={user_id!} post_id={post.id} />
+        </Route>
       </Card>
       {renderMenu}
     </Grid>

@@ -4,11 +4,7 @@ export default function CircularIndeterminate() {
   return (
     <div
       style={{
-        position: "absolute",
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
+        height: "83vh",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",

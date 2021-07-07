@@ -6,7 +6,7 @@ const baseURL = process.env.REACT_APP_API;
 
 const axiosInstance = axios.create({
   baseURL: baseURL,
-  timeout: 10000,
+  timeout: 5000,
   headers: {
     Authorization: localStorage.getItem("accessToken")
       ? "Bearer " + localStorage.getItem("accessToken")

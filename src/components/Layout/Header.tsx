@@ -11,7 +11,6 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import InputBase from "@material-ui/core/InputBase";
-import Badge from "@material-ui/core/Badge";
 import PersonAddIcon from "@material-ui/icons/PersonAdd";
 import SearchIcon from "@material-ui/icons/Search";
 import MenuIcon from "@material-ui/icons/Menu";
@@ -26,7 +25,6 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Tooltip,
 } from "@material-ui/core";
 import { Divider } from "@material-ui/core";
 
@@ -41,8 +39,15 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "block",
       fontFamily: "Eagle Lake",
       color: "white",
+      [theme.breakpoints.up("md")]: {
+        display: "none",
+      },
+    },
+    titleDrawer: {
+      // display: "block",
+      fontFamily: "Eagle Lake",
       [theme.breakpoints.up("sm")]: {
-        display: "block",
+        // display: "block",
       },
     },
     search: {
@@ -54,7 +59,8 @@ const useStyles = makeStyles((theme: Theme) =>
       },
       marginRight: theme.spacing(2),
       marginLeft: 0,
-      maxWidth: "50%",
+      //   maxWidth: "50%",
+      width: "auto",
       [theme.breakpoints.up("sm")]: {
         marginLeft: theme.spacing(3),
         width: "auto",
@@ -78,13 +84,17 @@ const useStyles = makeStyles((theme: Theme) =>
     inputInput: {
       padding: theme.spacing(1, 1, 1, 0),
       // vertical padding + font size from searchIcon
-      paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+      paddingLeft: `calc(1em + ${theme.spacing(2.5)}px)`,
       transition: theme.transitions.create("width"),
-      width: "100%",
+      width: "0ch",
+      "&:focus": {
+        width: "15ch",
+      },
       [theme.breakpoints.up("sm")]: {
-        width: "7ch",
+        paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+        width: "20ch",
         "&:focus": {
-          width: "20ch",
+          width: "25ch",
         },
       },
     },
@@ -111,6 +121,14 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     // necessary for content to be below app bar
     toolbar: theme.mixins.toolbar,
+    titleDiv: {
+      // paddingLeft: theme.spacing(2),
+      display: "flex",
+      flexGrow: 1,
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+    },
     appBar: {
       [theme.breakpoints.up("md")]: {
         width: `calc(100% - ${drawerWidth}px)`,
@@ -127,7 +145,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface Props {
-  /**
+  /**••••••••
    * Injected by the documentation to work in an iframe.
    * You won't need it on your project.
    */
@@ -160,15 +178,50 @@ export default function Header(props: Props) {
 
   const drawer = (
     <div>
-      <div className={classes.toolbar} />
-      <Divider />
+      <div style={{ display: "flex" }} className={classes.toolbar}>
+        <div className={classes.titleDiv}>
+          <Link
+            component={RouterLink}
+            to="/"
+            className={classes.titleDrawer}
+            variant="h4"
+            // underline="none"
+            noWrap
+          >
+            Explore
+          </Link>
+        </div>
+      </div>
       <List>
-        <ListItem button key="Requests">
+        <Divider />
+        <ListItem onClick={handleRequestsClick} button key="Requests">
           <ListItemIcon>
             <PersonAddIcon />
           </ListItemIcon>
           <ListItemText primary="Requests" />
         </ListItem>
+        <Divider />
+        <ListItem onClick={handleNotificationsClick} button key="Notifications">
+          <ListItemIcon>
+            <NotificationsIcon />
+          </ListItemIcon>
+          <ListItemText primary="Notifications" />
+        </ListItem>
+        <Divider />
+        <ListItem onClick={handleProfileClick} button key="Profile">
+          <ListItemIcon>
+            <AccountCircle />
+          </ListItemIcon>
+          <ListItemText primary="Profile" />
+        </ListItem>
+        <Divider />
+        <ListItem onClick={handleAccountClick} button key="Account">
+          <ListItemIcon>
+            <SettingsIcon />
+          </ListItemIcon>
+          <ListItemText primary="Account" />
+        </ListItem>
+        <Divider />
       </List>
     </div>
   );
@@ -211,36 +264,6 @@ export default function Header(props: Props) {
                 input: classes.inputInput,
               }}
             />
-          </div>
-          <div className={classes.sectionDesktop}>
-            <Tooltip title="Follow Requests">
-              <IconButton color="inherit" onClick={handleRequestsClick}>
-                <Badge color="secondary">
-                  <PersonAddIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Notifications">
-              <IconButton color="inherit" onClick={handleNotificationsClick}>
-                <Badge color="secondary">
-                  <NotificationsIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Profile">
-              <IconButton color="inherit" onClick={handleProfileClick}>
-                <AccountCircle />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Account">
-              <IconButton
-                edge="end"
-                color="inherit"
-                onClick={handleAccountClick}
-              >
-                <SettingsIcon />
-              </IconButton>
-            </Tooltip>
           </div>
         </Toolbar>
       </AppBar>

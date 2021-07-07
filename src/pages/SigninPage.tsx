@@ -17,8 +17,7 @@ import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import { useAppDispatch } from "../app/hooks";
 import axios from "axios";
 import { login } from "../features/auth/authSlice";
-import { useState } from "react";
-import { Helmet, HelmetProvider } from "react-helmet-async";
+import { useEffect, useState } from "react";
 
 const Alert = (props: AlertProps) => {
   return <MuiAlert elevation={3} variant="filled" {...props} />;
@@ -79,6 +78,11 @@ const SigninPage = () => {
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
+
+  useEffect(() => {
+    document.title = "Explore | Sign In";
+  }, []);
+
   const to = useQuery().get("to");
   let registerRoute = "/register";
   if (to) registerRoute = "/register?to=" + to;
@@ -91,109 +95,104 @@ const SigninPage = () => {
   const classes = useStyles();
 
   return (
-    <HelmetProvider>
-      <Helmet>
-        <title>Explore | Sign in</title>
-      </Helmet>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Snackbar
-          open={open}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          onClose={handleSnackBarClose}
-          autoHideDuration={3000}
-        >
-          <Alert icon={false} severity="error" onClose={handleSnackBarClose}>
-            {errorMessage}
-          </Alert>
-        </Snackbar>
-        <Paper className={classes.paper} elevation={3}>
-          <div className={classes.pageWrapper}>
-            <Typography className={classes.heading} component="h1" variant="h5">
-              Explore
-            </Typography>
-            <Formik
-              initialValues={initialValues}
-              validationSchema={validationSchema}
-              onSubmit={async (values, { setSubmitting }) => {
-                try {
-                  const response = await axios.post(
-                    process.env.REACT_APP_API + "user/signin",
-                    values
-                  );
-                  dispatch(login(response.data));
-                  if (to) history.replace(to);
-                  else history.replace("/");
-                } catch (e) {
-                  let message = "Something went wrong!";
-                  if (typeof e.response.data == "object")
-                    for (const key in e.response.data) {
-                      message = e.response.data[key] + "\n";
-                    }
-                  setErrorMessage(message);
-                  setOpen(true);
-                }
-                setSubmitting(false);
-              }}
-            >
-              {({ submitForm, isSubmitting, touched, errors }) => (
-                <Form className={classes.form}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                      <Field
-                        component={TextField}
-                        variant="outlined"
-                        fullWidth
-                        id="email"
-                        label="Email Address"
-                        name="email"
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Field
-                        component={TextField}
-                        variant="outlined"
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                      />
-                    </Grid>
-                  </Grid>
-                  {isSubmitting ? (
-                    <div className={classes.progress}>
-                      <CircularProgress />
-                    </div>
-                  ) : (
-                    <Button
-                      type="submit"
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Snackbar
+        open={open}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        onClose={handleSnackBarClose}
+        autoHideDuration={3000}
+      >
+        <Alert icon={false} severity="error" onClose={handleSnackBarClose}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
+      <Paper className={classes.paper} elevation={3}>
+        <div className={classes.pageWrapper}>
+          <Typography className={classes.heading} component="h1" variant="h5">
+            Explore
+          </Typography>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={validationSchema}
+            onSubmit={async (values, { setSubmitting }) => {
+              try {
+                const response = await axios.post(
+                  process.env.REACT_APP_API + "user/signin",
+                  values
+                );
+                dispatch(login(response.data));
+                if (to) history.replace(to);
+                else history.replace("/");
+              } catch (e) {
+                let message = "Something went wrong!";
+                if (typeof e.response.data == "object")
+                  for (const key in e.response.data) {
+                    message = e.response.data[key] + "\n";
+                  }
+                setErrorMessage(message);
+                setOpen(true);
+              }
+              setSubmitting(false);
+            }}
+          >
+            {({ submitForm, isSubmitting, touched, errors }) => (
+              <Form className={classes.form}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <Field
+                      component={TextField}
+                      variant="outlined"
                       fullWidth
-                      variant="contained"
-                      color="primary"
-                      className={classes.submit}
-                    >
-                      Sign In
-                    </Button>
-                  )}
-                  <Grid container justify="flex-end">
-                    <Grid item>
-                      <Link
-                        component={RouterLink}
-                        to={registerRoute}
-                        variant="body2"
-                      >
-                        Don't have an account? Sign up
-                      </Link>
-                    </Grid>
+                      id="email"
+                      label="Email Address"
+                      name="email"
+                    />
                   </Grid>
-                </Form>
-              )}
-            </Formik>
-          </div>
-        </Paper>
-      </Container>
-    </HelmetProvider>
+                  <Grid item xs={12}>
+                    <Field
+                      component={TextField}
+                      variant="outlined"
+                      fullWidth
+                      name="password"
+                      label="Password"
+                      type="password"
+                      id="password"
+                    />
+                  </Grid>
+                </Grid>
+                {isSubmitting ? (
+                  <div className={classes.progress}>
+                    <CircularProgress />
+                  </div>
+                ) : (
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                  >
+                    Sign In
+                  </Button>
+                )}
+                <Grid container justify="flex-end">
+                  <Grid item>
+                    <Link
+                      component={RouterLink}
+                      to={registerRoute}
+                      variant="body2"
+                    >
+                      Don't have an account? Sign up
+                    </Link>
+                  </Grid>
+                </Grid>
+              </Form>
+            )}
+          </Formik>
+        </div>
+      </Paper>
+    </Container>
   );
 };
 

@@ -1,5 +1,5 @@
 import { Link } from "@material-ui/core";
-import { Helmet, HelmetProvider } from "react-helmet-async";
+import { useEffect } from "react";
 import { useAppDispatch } from "../app/hooks";
 import { logout } from "../features/auth/authSlice";
 
@@ -8,23 +8,23 @@ const AccountPage = () => {
   const handleSignout = () => {
     dispatch(logout());
   };
+
+  useEffect(() => {
+    document.title = "Explore | Account";
+  }, []);
+
   return (
-    <HelmetProvider>
-      <Helmet>
-        <title>Explore | Account</title>
-      </Helmet>
-      <div>
-        <h2>Hello there! Welcome to account page.</h2>
-        <Link
-          style={{ cursor: "pointer" }}
-          variant="h5"
-          underline="none"
-          onClick={handleSignout}
-        >
-          Sign out
-        </Link>
-      </div>
-    </HelmetProvider>
+    <div>
+      <h2>Hello there! Welcome to account page.</h2>
+      <Link
+        style={{ cursor: "pointer" }}
+        variant="h5"
+        underline="none"
+        onClick={handleSignout}
+      >
+        Sign out
+      </Link>
+    </div>
   );
 };
 

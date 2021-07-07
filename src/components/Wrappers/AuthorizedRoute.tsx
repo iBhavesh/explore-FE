@@ -4,20 +4,14 @@ import { useAppSelector } from "../../app/hooks";
 
 interface Props extends RouteProps {
   children: ReactNode;
+  // component:  React.LazyExoticComponent<() => JSX.Element>;
   path: string;
 }
 
 const AuthorizedRoute = (props: Props) => {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  return (
-    <Route {...props}>
-      {isAuthenticated ? (
-        props.children
-      ) : (
-        <Redirect to={"/login?to=" + props.path} />
-      )}
-    </Route>
-  );
+  if (!isAuthenticated) return <Redirect to={"/signin?to=" + props.path} />;
+  return <Route {...props}>{props.children}</Route>;
 };
 
 export default AuthorizedRoute;

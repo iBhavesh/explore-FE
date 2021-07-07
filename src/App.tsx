@@ -23,7 +23,7 @@ function App() {
             <RegisterPage />
           </Suspense>
         </AnonymousUserRoute>
-        <AnonymousUserRoute exact path="/login">
+        <AnonymousUserRoute exact path="/signin">
           <Suspense fallback={<CircularIndeterminate />}>
             <SiginPage />
           </Suspense>
@@ -48,16 +48,16 @@ function App() {
             <AccountPage />
           </Suspense>
         </AuthorizedRoute>
-        <Route exact path="/requests">
+        <AuthorizedRoute exact path="/requests">
           <Suspense fallback={<CircularIndeterminate />}>
             <RequestPage />
           </Suspense>
-        </Route>
-        <Route exact path="/posts/:postId">
+        </AuthorizedRoute>
+        <AuthorizedRoute exact path="/posts/:postId">
           <Suspense fallback={<CircularIndeterminate />}>
             <SinglePostPage />
           </Suspense>
-        </Route>
+        </AuthorizedRoute>
         <Route path="*">
           <h2>Page doesn't exist</h2>
         </Route>
