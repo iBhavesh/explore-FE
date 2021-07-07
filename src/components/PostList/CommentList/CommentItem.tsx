@@ -7,6 +7,12 @@ import {
   Link,
   ListItem,
   Typography,
+  Dialog,
+  DialogTitle,
+  DialogContentText,
+  DialogActions,
+  Button,
+  DialogContent,
 } from "@material-ui/core";
 import { blue } from "@material-ui/core/colors";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
@@ -68,6 +74,7 @@ type Props = { comment: Comment };
 const CommentItem = (props: Props) => {
   const classes = useStyles();
   const [isLiked, setIsLiked] = useState(false);
+  const [open, setOpen] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
   const [likeCount, setLikeCount] = useState(0);
   const user_id = useAppSelector((state) => state.auth.accessToken!.user_id);
@@ -117,88 +124,117 @@ const CommentItem = (props: Props) => {
   };
 
   const handleDeleteClick = () => {
+    setOpen(true);
+  };
+
+  const handleAgree = () => {
     const url = `posts/${props.comment.post.id}/comments/${props.comment.id}`;
     dispatch(deletePostComment({ url, post_id: props.comment.post.id }));
+    setOpen(false);
+  };
+
+  const handleDisagree = () => {
+    setOpen(false);
   };
 
   return (
-    <ListItem alignItems="center">
-      <Card style={{ width: "100%" }} elevation={0}>
-        <CardHeader
-          style={{ paddingBottom: 0, paddingRight: "8px" }}
-          avatar={<Avatar className={classes.avatar} src=""></Avatar>}
-          action={
-            props.comment.author.id === user_id ||
-            props.comment.post.author === user_id ? (
+    <>
+      <ListItem alignItems="center">
+        <Card style={{ width: "100%" }} elevation={0}>
+          <CardHeader
+            style={{ paddingBottom: 0, paddingRight: "8px" }}
+            avatar={<Avatar className={classes.avatar} src=""></Avatar>}
+            action={
+              props.comment.author.id === user_id ||
+              props.comment.post.author === user_id ? (
+                <IconButton
+                  style={{
+                    color: "#ee2929",
+                    padding: "8px",
+                  }}
+                  onClick={handleDeleteClick}
+                >
+                  <Delete />
+                </IconButton>
+              ) : null
+            }
+            title={
+              props.comment.author.first_name +
+              " " +
+              props.comment.author.last_name
+            }
+            titleTypographyProps={{
+              variant: "subtitle1",
+              className: classes.title,
+            }}
+            subheader={props.comment.comment}
+            subheaderTypographyProps={{ variant: "body1" }}
+          />
+          <CardActions
+            style={{ paddingLeft: "8px", justifyContent: "space-between" }}
+          >
+            <Typography
+              variant="caption"
+              color="textSecondary"
+              style={{ paddingTop: "8px", paddingBottom: "8px" }}
+              component="p"
+            >
+              {createdAt.toLocaleString([], {
+                month: "long",
+                year: "numeric",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+              })}
+            </Typography>
+            <div>
+              <Link
+                style={{
+                  cursor: "pointer",
+                  padding: "8px",
+                  paddingRight: 0,
+                }}
+                variant="subtitle2"
+              >
+                {likeCount}
+              </Link>
               <IconButton
                 style={{
-                  color: "#ee2929",
                   padding: "8px",
+                  paddingLeft: 0,
+                  marginLeft: "8px",
                 }}
-                onClick={handleDeleteClick}
+                onClick={handleFavouriteClick}
               >
-                <Delete />
+                {isLiked ? (
+                  <FavoriteRounded style={{ color: "#ea3c3c" }} />
+                ) : (
+                  <FavoriteBorderRounded />
+                )}
               </IconButton>
-            ) : null
-          }
-          title={
-            props.comment.author.first_name +
-            " " +
-            props.comment.author.last_name
-          }
-          titleTypographyProps={{
-            variant: "subtitle1",
-            className: classes.title,
-          }}
-          subheader={props.comment.comment}
-          subheaderTypographyProps={{ variant: "body1" }}
-        />
-        <CardActions
-          style={{ paddingLeft: "8px", justifyContent: "space-between" }}
-        >
-          <Typography
-            variant="caption"
-            color="textSecondary"
-            style={{ paddingTop: "8px", paddingBottom: "8px" }}
-            component="p"
-          >
-            {createdAt.toLocaleString([], {
-              month: "long",
-              year: "numeric",
-              day: "numeric",
-              hour: "numeric",
-              minute: "numeric",
-            })}
-          </Typography>
-          <div>
-            <Link
-              style={{
-                cursor: "pointer",
-                padding: "8px",
-                paddingRight: 0,
-              }}
-              variant="subtitle2"
-            >
-              {likeCount}
-            </Link>
-            <IconButton
-              style={{
-                padding: "8px",
-                paddingLeft: 0,
-                marginLeft: "8px",
-              }}
-              onClick={handleFavouriteClick}
-            >
-              {isLiked ? (
-                <FavoriteRounded style={{ color: "#ea3c3c" }} />
-              ) : (
-                <FavoriteBorderRounded />
-              )}
-            </IconButton>
-          </div>
-        </CardActions>
-      </Card>
-    </ListItem>
+            </div>
+          </CardActions>
+        </Card>
+      </ListItem>
+      <Dialog disableBackdropClick disableEscapeKeyDown open={open}>
+        <DialogTitle id="responsive-dialog-title">
+          {"Use Google's location service?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete the comment.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={handleDisagree} color="primary">
+            Disagree
+          </Button>
+          <Button onClick={handleAgree} color="primary" autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

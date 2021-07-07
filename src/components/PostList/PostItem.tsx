@@ -10,7 +10,18 @@ import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import { blue } from "@material-ui/core/colors";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
-import { Divider, Grid, Link, MenuItem } from "@material-ui/core";
+import {
+  Divider,
+  Grid,
+  Link,
+  MenuItem,
+  Dialog,
+  DialogTitle,
+  DialogContentText,
+  DialogActions,
+  Button,
+  DialogContent,
+} from "@material-ui/core";
 import { useState } from "react";
 import {
   FavoriteBorderRounded,
@@ -24,7 +35,7 @@ import { Menu } from "@material-ui/core";
 import { Route, useHistory } from "react-router-dom";
 import { Skeleton } from "@material-ui/lab";
 import AddCommentForm from "./AddCommentForm";
-import { Post } from "../../features/posts/postsSlice";
+import { fetchUserPosts, Post } from "../../features/posts/postsSlice";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import CommentList from "./CommentList/CommentList";
@@ -78,6 +89,7 @@ const PostItem = ({ post, singlePost }: Props) => {
   const classes = useStyles();
   const history = useHistory();
   const dispatch = useAppDispatch();
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isInitial, setIsInitial] = useState(true);
@@ -170,7 +182,10 @@ const PostItem = ({ post, singlePost }: Props) => {
     setMenuAnchorEl(null);
   };
 
-  const handleDeletePostClick = () => {};
+  const handleDeletePostClick = () => {
+    handleMenuClose();
+    setDialogOpen(true);
+  };
   const handleCommentButtonClick = () => {
     if (!singlePost) history.push(`/posts/${post.id}`);
   };
@@ -191,16 +206,27 @@ const PostItem = ({ post, singlePost }: Props) => {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      {!singlePost ? (
-        <MenuItem onClick={handleDeletePostClick}>
-          <p>Delete Post</p>
-        </MenuItem>
-      ) : null}
+      <MenuItem onClick={handleDeletePostClick}>
+        <p>Delete Post</p>
+      </MenuItem>
     </Menu>
   );
 
   const handleSnackBarClose = () => {
     setOpen(false);
+  };
+
+  const handleAgree = () => {
+    // const url = `posts/${props.comment.post.id}/comments/${props.comment.id}`;
+    // dispatch(deletePostComment({ url, post_id: props.comment.post.id }));
+    console.log("delete");
+    setDialogOpen(false);
+    if (singlePost) history.goBack();
+    else dispatch(fetchUserPosts(user_id!));
+  };
+
+  const handleDisagree = () => {
+    setDialogOpen(false);
   };
 
   return (
@@ -294,6 +320,24 @@ const PostItem = ({ post, singlePost }: Props) => {
         </Route>
       </Card>
       {renderMenu}
+      <Dialog disableBackdropClick disableEscapeKeyDown open={dialogOpen}>
+        <DialogTitle id="responsive-dialog-title">
+          {"Use Google's location service?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete the comment.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={handleDisagree} color="primary">
+            Disagree
+          </Button>
+          <Button onClick={handleAgree} color="primary" autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Grid>
   );
 };

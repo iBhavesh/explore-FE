@@ -88,8 +88,14 @@ const commentsSlice = createSlice({
         else state.comments = action.payload;
         state.status = "succeeded";
       })
+      .addCase(fetchPostComments.pending, (state, action) => {
+        state.status = "loading";
+      })
       .addCase(addPostComment.fulfilled, (state, action) => {
-        // state.comments.unshift(action.payload);
+        state.status = "loading";
+      })
+      .addCase(addPostComment.pending, (state, action) => {
+        state.status = "loading";
       });
   },
 });

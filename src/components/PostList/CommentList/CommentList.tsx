@@ -34,7 +34,12 @@ const CommentList = () => {
   const status = useAppSelector((state) => state.comments.status);
   const error = useAppSelector((state) => state.comments.error);
 
-  if (status === "loading") return <CircularIndeterminate />;
+  if (status === "loading")
+    return (
+      <List className={classes.list}>
+        <CircularIndeterminate />;
+      </List>
+    );
   if (error) return <div>{error}</div>;
   if (status === "succeeded" && comments.length === 0)
     return (
