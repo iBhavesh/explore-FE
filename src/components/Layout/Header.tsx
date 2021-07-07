@@ -27,6 +27,7 @@ import {
   ListItemText,
 } from "@material-ui/core";
 import { Divider } from "@material-ui/core";
+import { useAppSelector } from "../../app/hooks";
 
 const drawerWidth = 240;
 
@@ -39,6 +40,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "block",
       fontFamily: "Eagle Lake",
       color: "white",
+      fontWeight: 700,
       [theme.breakpoints.up("md")]: {
         display: "none",
       },
@@ -145,31 +147,27 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface Props {
-  /**••••••••
-   * Injected by the documentation to work in an iframe.
-   * You won't need it on your project.
-   */
-  window?: () => Window;
-}
-
-export default function Header(props: Props) {
+export default function Header() {
   const classes = useStyles();
   const history = useHistory();
-  const { window } = props;
   const theme = useTheme();
+  const user_id = useAppSelector((state) => state.auth.accessToken!.user_id);
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const handleNotificationsClick = () => {
+    handleDrawerToggle();
     history.push("/notifications");
   };
   const handleProfileClick = () => {
-    history.push("/profile");
+    handleDrawerToggle();
+    history.push("/user/" + user_id);
   };
   const handleAccountClick = () => {
+    handleDrawerToggle();
     history.push("/account");
   };
   const handleRequestsClick = () => {
+    handleDrawerToggle();
     history.push("/requests");
   };
 
@@ -184,6 +182,9 @@ export default function Header(props: Props) {
           <Link
             component={RouterLink}
             to="/"
+            onClick={() => {
+              handleDrawerToggle();
+            }}
             className={classes.titleDrawer}
             variant="h4"
             // underline="none"
@@ -227,9 +228,6 @@ export default function Header(props: Props) {
     </div>
   );
 
-  const container =
-    window !== undefined ? () => window().document.body : undefined;
-
   return (
     <>
       <AppBar position="fixed" className={classes.appBar}>
@@ -272,7 +270,6 @@ export default function Header(props: Props) {
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Hidden mdUp implementation="css">
           <Drawer
-            container={container}
             variant="temporary"
             anchor={theme.direction === "rtl" ? "right" : "left"}
             open={mobileOpen}

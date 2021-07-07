@@ -6,17 +6,37 @@ import {
   Avatar,
   Button,
 } from "@material-ui/core";
+import { useEffect } from "react";
+import { useState } from "react";
+import axiosInstance from "../axios";
+import { Follower } from "../features/follower/followerSlice";
+type Props = {
+  isFollower?: boolean;
+  user: Follower;
+};
 
-const FollowListItem = () => {
+const FollowListItem = (props: Props) => {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (props.user.profile_picture !== null) {
+      axiosInstance.get(props.user.profile_picture).then((response) => {
+        setImageUrl(response.data.url);
+      });
+    }
+  }, [props.user.profile_picture]);
+
   return (
     <ListItem>
       <ListItemAvatar>
-        <Avatar src="https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_960_720.jpg" />
+        <Avatar src={imageUrl ?? ""} />
       </ListItemAvatar>
-      <ListItemText primary="Bhavesh Sharma" />
+      <ListItemText
+        primary={`${props.user.first_name} ${props.user.last_name}`}
+      />
       <ListItemSecondaryAction>
         <Button size="small" variant="outlined">
-          UnFollow
+          {props.isFollower ? "Unfollow" : "Remove"}
         </Button>
       </ListItemSecondaryAction>
     </ListItem>

@@ -35,7 +35,11 @@ import { Menu } from "@material-ui/core";
 import { Route, useHistory } from "react-router-dom";
 import { Skeleton } from "@material-ui/lab";
 import AddCommentForm from "./AddCommentForm";
-import { fetchUserPosts, Post } from "../../features/posts/postsSlice";
+import {
+  deletePost,
+  fetchUserPosts,
+  Post,
+} from "../../features/posts/postsSlice";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import CommentList from "./CommentList/CommentList";
@@ -217,8 +221,7 @@ const PostItem = ({ post, singlePost }: Props) => {
   };
 
   const handleAgree = () => {
-    // const url = `posts/${props.comment.post.id}/comments/${props.comment.id}`;
-    // dispatch(deletePostComment({ url, post_id: props.comment.post.id }));
+    dispatch(deletePost({ post_id: post.id, user_id: user_id! }));
     console.log("delete");
     setDialogOpen(false);
     if (singlePost) history.goBack();
@@ -321,20 +324,18 @@ const PostItem = ({ post, singlePost }: Props) => {
       </Card>
       {renderMenu}
       <Dialog disableBackdropClick disableEscapeKeyDown open={dialogOpen}>
-        <DialogTitle id="responsive-dialog-title">
-          {"Use Google's location service?"}
-        </DialogTitle>
+        <DialogTitle id="responsive-dialog-title">{"Delete post"}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete the comment.
+            Are you sure you want to delete the post?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleDisagree} color="primary">
-            Disagree
+            Cancel
           </Button>
           <Button onClick={handleAgree} color="primary" autoFocus>
-            Agree
+            Yes
           </Button>
         </DialogActions>
       </Dialog>

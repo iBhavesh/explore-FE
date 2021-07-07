@@ -1,8 +1,9 @@
 import { Divider, Link, List, Modal, Grow } from "@material-ui/core";
 import { Card, CardMedia, Grid, Typography, Backdrop } from "@material-ui/core";
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
-import { useState } from "react";
-import FollowListItem from "./FollowListItem";
+import { ReactNode, useState } from "react";
+import { useAppSelector } from "../../app/hooks";
+import FollowListItem from "../FollowListItem";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,24 +43,53 @@ const useStyles = makeStyles((theme: Theme) =>
       width: 400,
       borderRadius: 8,
       outline: "none",
+      padding: theme.spacing(1),
     },
+    list: { overflow: "auto", height: 400 },
   })
 );
 
 const ProfileHead = () => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [listContent, setlistContent] = useState<ReactNode>();
+  const user = useAppSelector((state) => state.user.user);
+  const followers = useAppSelector((state) => state.follower.followers);
+  const following = useAppSelector((state) => state.follower.following);
 
   const handleFollowerModalOpen = () => {
     setOpen(true);
+    const content = followers.map((item, i, arr) => {
+      if (i === arr.length - 1)
+        return <FollowListItem user={item} isFollower />;
+      return (
+        <>
+          <FollowListItem user={item} isFollower />
+          <Divider />
+        </>
+      );
+    });
+    setlistContent(content);
   };
   const handleFollowingModalOpen = () => {
     setOpen(true);
+    const content = following.map((item, i, arr) => {
+      if (i === arr.length - 1) return <FollowListItem user={item} />;
+      return (
+        <>
+          <FollowListItem user={item} />
+          <Divider />
+        </>
+      );
+    });
+    setlistContent(content);
   };
 
   const handleFollowerModalClose = () => {
     setOpen(false);
   };
+
+  if (!user) return <></>;
 
   return (
     <Grid container justify="center">
@@ -75,26 +105,7 @@ const ProfileHead = () => {
       >
         <Grow in={open}>
           <Card className={classes.modalCard}>
-            <div style={{ overflow: "auto" }}>
-              <List>
-                <FollowListItem />
-                <Divider />
-                <FollowListItem />
-                <Divider />
-                <FollowListItem />
-                <Divider />
-                <FollowListItem />
-                <Divider />
-                <FollowListItem />
-                <Divider />
-                <FollowListItem />
-                <Divider />
-                <FollowListItem />
-                <Divider />
-                <FollowListItem />
-                <Divider />
-              </List>
-            </div>
+            <List className={classes.list}>{listContent}</List>
           </Card>
         </Grow>
       </Modal>
@@ -103,7 +114,10 @@ const ProfileHead = () => {
           className={classes.profilePicture}
           component="img"
           //   style={{ flexGrow: 3 }}
-          src="https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885_960_720.jpg  "
+          src={
+            user!.profile_picture ??
+            "https://www.hmiscfl.org/wp-content/uploads/2018/06/placeholder.png"
+          }
         />
         <div className={classes.grow}></div>
         <div
@@ -116,11 +130,11 @@ const ProfileHead = () => {
         >
           <div>
             <Typography className={classes.title} variant="h4">
-              Bhavesh Sharma
+              {`${user!.first_name} ${user!.last_name}`}
             </Typography>
           </div>
           <div style={{ marginTop: "8px" }}>
-            <Typography variant="subtitle1">bs466218@gmail.com</Typography>
+            <Typography variant="subtitle1">{user!.email}</Typography>
           </div>
           <div style={{ display: "flex", marginTop: "8px" }}>
             <div style={{ flexGrow: 1 }}>
@@ -130,7 +144,7 @@ const ProfileHead = () => {
                 onClick={handleFollowerModalOpen}
               >
                 <Typography style={{ display: "inline", fontWeight: 700 }}>
-                  3
+                  {followers.length}
                 </Typography>
                 {" Followers"}
               </Link>
@@ -142,7 +156,7 @@ const ProfileHead = () => {
                 onClick={handleFollowingModalOpen}
               >
                 <Typography style={{ display: "inline", fontWeight: 700 }}>
-                  3
+                  {following.length}
                 </Typography>
                 {" Following"}
               </Link>

@@ -68,6 +68,20 @@ export const fetchUserPosts = createAsyncThunk(
   }
 );
 
+export const deletePost = createAsyncThunk(
+  "posts/deletePost",
+  async (
+    { post_id, user_id }: { post_id: number; user_id: number },
+    thunkAPI
+  ) => {
+    try {
+      const response = await axiosInstance.delete(`posts/${post_id}`);
+      thunkAPI.dispatch(fetchUserPosts(user_id));
+      return response.data;
+    } catch (e) {}
+  }
+);
+
 const postsSlice = createSlice({
   name: "posts",
   initialState,

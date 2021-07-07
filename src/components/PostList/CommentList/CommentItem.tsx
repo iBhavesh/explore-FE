@@ -218,19 +218,19 @@ const CommentItem = (props: Props) => {
       </ListItem>
       <Dialog disableBackdropClick disableEscapeKeyDown open={open}>
         <DialogTitle id="responsive-dialog-title">
-          {"Use Google's location service?"}
+          {"Delete comment"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete the comment.
+            Are you sure you want to delete the comment?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleDisagree} color="primary">
-            Disagree
+            Cancel
           </Button>
           <Button onClick={handleAgree} color="primary" autoFocus>
-            Agree
+            Yes
           </Button>
         </DialogActions>
       </Dialog>

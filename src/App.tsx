@@ -33,7 +33,7 @@ function App() {
             <HomePage />
           </Suspense>
         </AuthorizedRoute>
-        <AuthorizedRoute exact path="/profile">
+        <AuthorizedRoute exact path="/user/:userId">
           <Suspense fallback={<CircularIndeterminate />}>
             <ProfilePage />
           </Suspense>
