@@ -13,6 +13,7 @@ const NotificationPage = lazy(() => import("./pages/NotificationPage"));
 const RequestPage = lazy(() => import("./pages/RequestPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const SinglePostPage = lazy(() => import("./pages/SinglePostPage"));
+const ForgetPasswordPage = lazy(() => import("./pages/ForgetPasswordPage"));
 
 function App() {
   return (
@@ -26,6 +27,11 @@ function App() {
         <AnonymousUserRoute exact path="/signin">
           <Suspense fallback={<CircularIndeterminate />}>
             <SiginPage />
+          </Suspense>
+        </AnonymousUserRoute>
+        <AnonymousUserRoute exact path="/forget-password">
+          <Suspense fallback={<CircularIndeterminate />}>
+            <ForgetPasswordPage />
           </Suspense>
         </AnonymousUserRoute>
         <AuthorizedRoute path="/" exact>

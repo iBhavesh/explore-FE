@@ -32,9 +32,12 @@ const Layout = (props: Props) => {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   const classes = useStyles();
+
+  if (!isAuthenticated) return <>{props.children}</>;
+
   return (
     <div className={classes.root}>
-      {isAuthenticated ? <Header /> : null}
+      <Header />
       <main className={classes.content}>
         <div className={classes.toolbar} />
         {props.children}

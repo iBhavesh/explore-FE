@@ -1,12 +1,9 @@
-import { useHistory, useLocation } from "react-router-dom";
-import { Link as RouterLink } from "react-router-dom";
 import { Formik, Field, Form } from "formik";
 import * as Yup from "yup";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { TextField } from "formik-material-ui";
-import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
@@ -14,10 +11,9 @@ import Container from "@material-ui/core/Container";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Snackbar from "@material-ui/core/Snackbar";
 import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
-import { useAppDispatch } from "../app/hooks";
 import axios from "axios";
-import { login } from "../features/auth/authSlice";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Divider } from "@material-ui/core";
 
 const Alert = (props: AlertProps) => {
   return <MuiAlert elevation={3} variant="filled" {...props} />;
@@ -25,10 +21,9 @@ const Alert = (props: AlertProps) => {
 
 const useStyles = makeStyles((theme) => ({
   pageWrapper: {
-    marginTop: theme.spacing(16),
+    marginTop: theme.spacing(25),
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
   },
   paper: {
     borderRadius: "0.5rem",
@@ -46,12 +41,6 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(3, "auto"),
     maxWidth: "40px",
   },
-  heading: {
-    marginTop: "10px",
-    fontFamily: "Eagle Lake",
-    fontSize: "3.0rem",
-    color: "#04009A",
-  },
 }));
 
 const date = new Date();
@@ -66,27 +55,15 @@ const validationSchema = Yup.object({
   email: Yup.string()
     .email("Invalid email address")
     .required("Email is required"),
-  password: Yup.string()
-    .required("Password is required")
-    .min(8, "Password should be minimim 8 characters"),
 });
 
-const SigninPage = () => {
+type Props = {
+  showPasswordForm: () => void;
+};
+
+const TokenGenerationForm = (props: Props) => {
   const [open, setOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const dispatch = useAppDispatch();
-  const useQuery = () => {
-    return new URLSearchParams(useLocation().search);
-  };
-
-  useEffect(() => {
-    document.title = "Explore | Sign In";
-  }, []);
-
-  const to = useQuery().get("to");
-  let registerRoute = "/register";
-  if (to) registerRoute = "/register?to=" + to;
-  const history = useHistory();
 
   const handleSnackBarClose = () => {
     setOpen(false);
@@ -109,21 +86,26 @@ const SigninPage = () => {
       </Snackbar>
       <Paper className={classes.paper} elevation={3}>
         <div className={classes.pageWrapper}>
-          <Typography className={classes.heading} component="h1" variant="h5">
-            Explore
+          <Typography
+            style={{ fontWeight: 500, marginLeft: 8, marginTop: 8 }}
+            variant="h5"
+          >
+            Reset Password
+          </Typography>
+          <Divider />
+          <Typography style={{ marginLeft: 8, marginTop: 8 }} variant="body1">
+            Password Reset Token will be Sent to your email
           </Typography>
           <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={async (values, { setSubmitting }) => {
               try {
-                const response = await axios.post(
-                  process.env.REACT_APP_API + "user/signin",
+                await axios.post(
+                  process.env.REACT_APP_API + "user/forgot-password",
                   values
                 );
-                dispatch(login(response.data));
-                if (to) history.replace(to);
-                else history.replace("/");
+                props.showPasswordForm();
               } catch (e) {
                 let message = "Something went wrong!";
                 if (typeof e.response.data == "object")
@@ -149,17 +131,6 @@ const SigninPage = () => {
                       name="email"
                     />
                   </Grid>
-                  <Grid item xs={12}>
-                    <Field
-                      component={TextField}
-                      variant="outlined"
-                      fullWidth
-                      name="password"
-                      label="Password"
-                      type="password"
-                      id="password"
-                    />
-                  </Grid>
                 </Grid>
                 {isSubmitting ? (
                   <div className={classes.progress}>
@@ -173,29 +144,9 @@ const SigninPage = () => {
                     color="primary"
                     className={classes.submit}
                   >
-                    Sign In
+                    Submit
                   </Button>
                 )}
-                <Grid container justify="space-between">
-                  <Grid item>
-                    <Link
-                      component={RouterLink}
-                      to="/forget-password"
-                      variant="body2"
-                    >
-                      Forgot Password?
-                    </Link>
-                  </Grid>
-                  <Grid item>
-                    <Link
-                      component={RouterLink}
-                      to={registerRoute}
-                      variant="body2"
-                    >
-                      Don't have an account? Sign up
-                    </Link>
-                  </Grid>
-                </Grid>
               </Form>
             )}
           </Formik>
@@ -205,4 +156,4 @@ const SigninPage = () => {
   );
 };
 
-export default SigninPage;
+export default TokenGenerationForm;

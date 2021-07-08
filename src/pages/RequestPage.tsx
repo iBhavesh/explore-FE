@@ -1,4 +1,6 @@
+import { Grid } from "@material-ui/core";
 import { useEffect } from "react";
+import RequestItem from "../components/Requests/RequestItem";
 
 const RequestPage = () => {
   useEffect(() => {
@@ -6,9 +8,17 @@ const RequestPage = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Hello there! Welcome to request page.</h2>
-    </div>
+    <Grid container direction="column" alignItems="center">
+      <RequestItem />
+      <RequestItem />
+      <RequestItem />
+      <RequestItem />
+      <RequestItem />
+      <RequestItem />
+      <RequestItem />
+      <RequestItem />
+      <RequestItem />
+    </Grid>
   );
 };
 

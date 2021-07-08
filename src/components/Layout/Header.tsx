@@ -25,6 +25,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  useMediaQuery,
 } from "@material-ui/core";
 import { Divider } from "@material-ui/core";
 import { useAppSelector } from "../../app/hooks";
@@ -149,25 +150,26 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function Header() {
   const classes = useStyles();
-  const history = useHistory();
   const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.up("md"));
+  const history = useHistory();
   const user_id = useAppSelector((state) => state.auth.accessToken!.user_id);
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const handleNotificationsClick = () => {
-    handleDrawerToggle();
+    if (!matches) handleDrawerToggle();
     history.push("/notifications");
   };
   const handleProfileClick = () => {
-    handleDrawerToggle();
+    if (!matches) handleDrawerToggle();
     history.push("/user/" + user_id);
   };
   const handleAccountClick = () => {
-    handleDrawerToggle();
+    if (!matches) handleDrawerToggle();
     history.push("/account");
   };
   const handleRequestsClick = () => {
-    handleDrawerToggle();
+    if (!matches) handleDrawerToggle();
     history.push("/requests");
   };
 
