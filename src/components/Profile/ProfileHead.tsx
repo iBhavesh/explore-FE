@@ -1,8 +1,22 @@
-import { Divider, Link, List, Modal, Grow } from "@material-ui/core";
+import {
+  Divider,
+  Link,
+  List,
+  Modal,
+  Grow,
+  Button,
+  CircularProgress,
+} from "@material-ui/core";
 import { Card, CardMedia, Grid, Typography, Backdrop } from "@material-ui/core";
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
-import { ReactNode, useState } from "react";
-import { useAppSelector } from "../../app/hooks";
+import { Skeleton } from "@material-ui/lab";
+import { ReactNode, useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import axiosInstance from "../../axios";
+import {
+  cancelFollowRequest,
+  sendFollowRequest,
+} from "../../features/follower/follower-actions";
 import FollowListItem from "../FollowListItem";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -46,18 +60,64 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(1),
     },
     list: { overflow: "auto", height: 400 },
+    followButton: {
+      color: "white",
+      backgroundColor: "#1565c0",
+      "&:hover": {
+        backgroundColor: "#3078ca",
+      },
+    },
   })
 );
-
+const placeholderImage =
+  "https://www.hmiscfl.org/wp-content/uploads/2018/06/placeholder.png";
 const ProfileHead = () => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [listContent, setlistContent] = useState<ReactNode>();
   const user = useAppSelector((state) => state.user.user);
+  const currentUser = useAppSelector(
+    (state) => state.auth.accessToken!.user_id
+  );
   const followers = useAppSelector((state) => state.follower.followers);
   const following = useAppSelector((state) => state.follower.following);
+  const followed_by_user = useAppSelector(
+    (state) => state.follower.followed_by_user
+  );
+  const [isInitial, setIsInitial] = useState(true);
+  const [profileUrl, setProfileUrl] = useState<null | string>(null);
+  const [imageIsLoading, setImageIsLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const follower_status = useAppSelector((state) => state.follower.status);
+
+  useEffect(() => {
+    if (isInitial) {
+      if (user) {
+        if (user!.profile_picture) {
+          axiosInstance.get(user!.profile_picture).then((response) => {
+            setProfileUrl(response.data.url);
+          });
+        } else {
+          setProfileUrl(placeholderImage);
+          console.log("setPlaceHolderImage");
+        }
+      }
+    }
+    setIsInitial(false);
+  }, [user, setIsInitial, isInitial]);
+
+  const handleFollowButtonClick = () => {
+    if (followed_by_user === null) {
+      dispatch(sendFollowRequest(user!.id));
+    } else if (followed_by_user) {
+      followButtonText = "Unfollow";
+    } else {
+      dispatch(cancelFollowRequest(user!.id));
+    }
+  };
 
   const handleFollowerModalOpen = () => {
+    if (followers.length === 0) return;
     setOpen(true);
     const content = followers.map((item, i, arr) => {
       if (i === arr.length - 1)
@@ -72,6 +132,7 @@ const ProfileHead = () => {
     setlistContent(content);
   };
   const handleFollowingModalOpen = () => {
+    if (following.length === 0) return;
     setOpen(true);
     const content = following.map((item, i, arr) => {
       if (i === arr.length - 1) return <FollowListItem user={item} />;
@@ -90,6 +151,20 @@ const ProfileHead = () => {
   };
 
   if (!user) return <></>;
+
+  let followButtonText;
+  let buttonVariant: "text" | "outlined" | "contained" = "contained";
+  let buttonClasses = classes.followButton;
+
+  if (followed_by_user === null) {
+    followButtonText = "Follow";
+  } else if (followed_by_user) {
+    followButtonText = "Unfollow";
+  } else {
+    followButtonText = "Cancel Request";
+    buttonClasses = "";
+    buttonVariant = "outlined";
+  }
 
   return (
     <Grid container justify="center">
@@ -110,16 +185,23 @@ const ProfileHead = () => {
         </Grow>
       </Modal>
       <Card className={classes.root}>
+        <Skeleton
+          className={classes.profilePicture}
+          variant="circle"
+          animation="wave"
+          style={!imageIsLoading ? { display: "none" } : {}}
+        />
         <CardMedia
           className={classes.profilePicture}
+          style={imageIsLoading ? { display: "none" } : {}}
+          onLoad={() => {
+            setImageIsLoading(false);
+          }}
           component="img"
           //   style={{ flexGrow: 3 }}
-          src={
-            user!.profile_picture ??
-            "https://www.hmiscfl.org/wp-content/uploads/2018/06/placeholder.png"
-          }
+          src={profileUrl ?? ""}
         />
-        <div className={classes.grow}></div>
+        <div className={classes.grow} />
         <div
           style={{
             display: "flex",
@@ -128,14 +210,38 @@ const ProfileHead = () => {
             flexDirection: "column",
           }}
         >
-          <div>
-            <Typography className={classes.title} variant="h4">
+          <div style={{ display: "flex" }}>
+            <Typography className={classes.title} variant="h5">
               {`${user!.first_name} ${user!.last_name}`}
             </Typography>
+            <div className={classes.grow} />
+            {currentUser !== user.id ? (
+              follower_status === "loading" ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CircularProgress size={20} />
+                </div>
+              ) : (
+                <Button
+                  onClick={handleFollowButtonClick}
+                  variant={buttonVariant}
+                  className={buttonClasses}
+                >
+                  {followButtonText}
+                </Button>
+              )
+            ) : null}
+            <div className={classes.grow} />
           </div>
           <div style={{ marginTop: "8px" }}>
             <Typography variant="subtitle1">{user!.email}</Typography>
           </div>
+          <div className={classes.grow} />
           <div style={{ display: "flex", marginTop: "8px" }}>
             <div style={{ flexGrow: 1 }}>
               <Link
@@ -162,7 +268,11 @@ const ProfileHead = () => {
               </Link>
             </div>
           </div>
+          <div className={classes.grow} />
+          <div className={classes.grow} />
         </div>
+        <div className={classes.grow} />
+        <div className={classes.grow} />
       </Card>
     </Grid>
   );

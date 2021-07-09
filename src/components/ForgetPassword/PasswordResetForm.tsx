@@ -101,7 +101,7 @@ const PasswordResetForm = () => {
             validationSchema={validationSchema}
             onSubmit={async (values, { setSubmitting }) => {
               try {
-                const response = await axios.put(
+                await axios.put(
                   process.env.REACT_APP_API + "user/reset/password",
                   values
                 );

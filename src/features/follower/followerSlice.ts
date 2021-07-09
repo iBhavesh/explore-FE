@@ -1,5 +1,13 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axiosInstance from "../../axios";
+import { createSlice } from "@reduxjs/toolkit";
+import {
+  cancelFollowRequest,
+  fetchFollowedByUserStatus,
+  fetchFollowers,
+  fetchFollowing,
+  fetchFollowRequests,
+  sendFollowRequest,
+  unfollowUser,
+} from "./follower-actions";
 
 export type Follower = {
   id: number;
@@ -13,40 +21,20 @@ export type Follower = {
 type FollowerState = {
   followers: Follower[];
   following: Follower[];
+  followed_by_user: Follower[];
+  follow_requests: any[];
   status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
+  error: any | null;
 };
 
 const initialState: FollowerState = {
   followers: [],
   following: [],
+  followed_by_user: [],
+  follow_requests: [],
   error: null,
   status: "idle",
 };
-
-export const fetchFollowers = createAsyncThunk(
-  "follower/fetchFollowers",
-  async (user_id: number) => {
-    try {
-      const response = await axiosInstance.get(`/user/${user_id}/followers`);
-      return response.data;
-    } catch (e) {
-      // return e;
-    }
-  }
-);
-
-export const fetchFollowing = createAsyncThunk(
-  "follower/fetchFollowing",
-  async (user_id: number) => {
-    try {
-      const response = await axiosInstance.get(`/user/${user_id}/following`);
-      return response.data;
-    } catch (e) {
-      // return e;
-    }
-  }
-);
 
 const followerSlice = createSlice({
   name: "followers",
@@ -62,6 +50,10 @@ const followerSlice = createSlice({
       .addCase(fetchFollowers.pending, (state, action) => {
         state.status = "loading";
       })
+      .addCase(fetchFollowers.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error;
+      })
       .addCase(fetchFollowing.fulfilled, (state, action) => {
         if (action.payload !== null) state.following = action.payload;
         else state.following = [];
@@ -69,6 +61,65 @@ const followerSlice = createSlice({
       })
       .addCase(fetchFollowing.pending, (state, action) => {
         state.status = "loading";
+      })
+      .addCase(fetchFollowing.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error;
+      })
+      .addCase(fetchFollowRequests.fulfilled, (state, action) => {
+        if (action.payload !== null) state.follow_requests = action.payload;
+        else state.follow_requests = [];
+        state.status = "succeeded";
+      })
+      .addCase(fetchFollowRequests.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(fetchFollowRequests.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error;
+      })
+      .addCase(fetchFollowedByUserStatus.fulfilled, (state, action) => {
+        console.log(action.payload);
+        if (action.payload !== null)
+          state.followed_by_user = action.payload.is_accepted;
+        state.status = "succeeded";
+      })
+      .addCase(fetchFollowedByUserStatus.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(fetchFollowedByUserStatus.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error;
+      })
+      .addCase(sendFollowRequest.fulfilled, (state, action) => {
+        state.status = "succeeded";
+      })
+      .addCase(sendFollowRequest.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(sendFollowRequest.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error;
+      })
+      .addCase(cancelFollowRequest.fulfilled, (state, action) => {
+        state.status = "succeeded";
+      })
+      .addCase(cancelFollowRequest.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(cancelFollowRequest.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error;
+      })
+      .addCase(unfollowUser.fulfilled, (state, action) => {
+        state.status = "succeeded";
+      })
+      .addCase(unfollowUser.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(unfollowUser.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.error;
       });
   },
 });

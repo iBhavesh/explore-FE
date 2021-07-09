@@ -8,6 +8,7 @@ type User = {
   last_name: string;
   date_of_birth: string;
   profile_picture: string | null;
+  is_private_profile: boolean;
 };
 
 type UserState = {
@@ -26,7 +27,7 @@ export const fetchUser = createAsyncThunk(
   "user/fetchUser",
   async (user_id: number) => {
     // try{
-    const response = await axiosInstance.get(`/user/${user_id}`);
+    const response = await axiosInstance.get<User>(`/user/${user_id}`);
     return response.data;
     // }catch(e){
     //     return e.

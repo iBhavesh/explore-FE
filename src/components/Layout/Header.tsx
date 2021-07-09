@@ -185,7 +185,7 @@ export default function Header() {
             component={RouterLink}
             to="/"
             onClick={() => {
-              handleDrawerToggle();
+              if (!matches) handleDrawerToggle();
             }}
             className={classes.titleDrawer}
             variant="h4"

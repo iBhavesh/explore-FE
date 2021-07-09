@@ -10,6 +10,7 @@ interface Props extends RouteProps {
 
 const AuthorizedRoute = (props: Props) => {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+
   if (!isAuthenticated) return <Redirect to={"/signin?to=" + props.path} />;
   return <Route {...props}>{props.children}</Route>;
 };

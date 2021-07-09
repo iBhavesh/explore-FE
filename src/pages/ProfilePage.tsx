@@ -6,9 +6,10 @@ import PostList from "../components/PostList/PostList";
 import ProfileHead from "../components/Profile/ProfileHead";
 import CircularIndeterminate from "../components/UI/CircularIndeterminate";
 import {
+  fetchFollowedByUserStatus,
   fetchFollowers,
   fetchFollowing,
-} from "../features/follower/followerSlice";
+} from "../features/follower/follower-actions";
 import { fetchUserPosts } from "../features/posts/postsSlice";
 import { fetchUser } from "../features/user/userSlice";
 
@@ -17,6 +18,7 @@ const ProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
   const userStatus = useAppSelector((state) => state.user.status);
   const error = useAppSelector((state) => state.user.error);
+  const user = useAppSelector((state) => state.user.user);
 
   useEffect(() => {
     document.title = "Explore | Profile";
@@ -27,6 +29,7 @@ const ProfilePage = () => {
     dispatch(fetchFollowers(+userId));
     dispatch(fetchFollowing(+userId));
     dispatch(fetchUser(+userId));
+    dispatch(fetchFollowedByUserStatus(+userId));
   }, [dispatch, userId]);
 
   if (userStatus === "loading") return <CircularIndeterminate />;
@@ -35,7 +38,11 @@ const ProfilePage = () => {
   return (
     <>
       <ProfileHead />
-      <PostList key="postList" />
+      {user?.is_private_profile ? (
+        <div>Profile is Private</div>
+      ) : (
+        <PostList key="postList" />
+      )}
     </>
   );
 };

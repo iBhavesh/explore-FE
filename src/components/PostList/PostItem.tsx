@@ -143,7 +143,7 @@ const PostItem = ({ post, singlePost }: Props) => {
   }, [dispatch, singlePost, post.id]);
 
   const handleTitleClick = () => {
-    console.log("Title clicked");
+    history.push(`/user/${post.author.id}`);
   };
 
   const handleFavouriteClick = () => {
