@@ -6,7 +6,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       width: 345,
-      borderRadius: 20,
+      borderRadius: 10,
       display: "flex",
       alignItems: "center",
       padding: theme.spacing(2),
