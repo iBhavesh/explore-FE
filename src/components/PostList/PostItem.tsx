@@ -59,6 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       width: 345,
       marginBottom: theme.spacing(2),
+      borderRadius: 10,
       [theme.breakpoints.up("sm")]: {
         width: 500,
       },

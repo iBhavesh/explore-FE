@@ -1,7 +1,8 @@
-import { Grid, Typography } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 
 import { useAppSelector } from "../../app/hooks";
 import CircularIndeterminate from "../UI/CircularIndeterminate";
+import NoPostsFound from "./NoPostsFound";
 import PostItem from "./PostItem";
 
 const PostList = () => {
@@ -11,12 +12,7 @@ const PostList = () => {
 
   if (status === "loading") return <CircularIndeterminate />;
   if (error) return <div>{error}</div>;
-  if (status === "succeeded" && posts.length === 0)
-    return (
-      <Grid container direction="column" alignItems="center">
-        <Typography variant="h3">No Posts Found</Typography>
-      </Grid>
-    );
+  if (status === "succeeded" && posts.length === 0) return <NoPostsFound />;
   return (
     <Grid container direction="column" alignItems="center">
       {posts.map((post) => (

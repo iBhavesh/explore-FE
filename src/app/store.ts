@@ -4,14 +4,16 @@ import postReducer from "../features/posts/postsSlice";
 import commentReducer from "../features/comments/commentsSlice";
 import userReducer from "../features/user/userSlice";
 import followerReducer from "../features/follower/followerSlice";
+import notificationReducer from "../features/notifications/notificationsSlice";
 
 export const store = configureStore({
   reducer: {
+    follower: followerReducer,
     auth: authReducer,
     user: userReducer,
     posts: postReducer,
     comments: commentReducer,
-    follower: followerReducer,
+    notification: notificationReducer,
   },
 });
 

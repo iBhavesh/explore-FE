@@ -24,7 +24,9 @@ const useStyles = makeStyles((theme: Theme) =>
     //   padding: theme.spacing(3),
     // },
     // necessary for content to be below app bar
-    toolbar: theme.mixins.toolbar,
+    toolbar: {
+      minHeight: 64,
+    },
   })
 );
 
@@ -39,7 +41,7 @@ const Layout = (props: Props) => {
     <div className={classes.root}>
       <Header />
       <main className={classes.content}>
-        <div className={classes.toolbar} />
+        <div id="layout-div" className={classes.toolbar} />
         {props.children}
       </main>
     </div>

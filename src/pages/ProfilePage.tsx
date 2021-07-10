@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
 import PostList from "../components/PostList/PostList";
 import ProfileHead from "../components/Profile/ProfileHead";
+import PrivateProfileCard from "../components/Profile//PrivateProfileCard";
 import CircularIndeterminate from "../components/UI/CircularIndeterminate";
 import {
   fetchFollowedByUserStatus,
@@ -39,7 +40,7 @@ const ProfilePage = () => {
     <>
       <ProfileHead />
       {user?.is_private_profile ? (
-        <div>Profile is Private</div>
+        <PrivateProfileCard />
       ) : (
         <PostList key="postList" />
       )}
