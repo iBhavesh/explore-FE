@@ -16,7 +16,7 @@ import axiosInstance from "../../axios";
 import {
   cancelFollowRequest,
   sendFollowRequest,
-} from "../../features/follower/follower-actions";
+} from "../../features/follower/followerSlice";
 import FollowListItem from "../FollowListItem";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -99,7 +99,6 @@ const ProfileHead = () => {
           });
         } else {
           setProfileUrl(placeholderImage);
-          console.log("setPlaceHolderImage");
         }
       }
     }

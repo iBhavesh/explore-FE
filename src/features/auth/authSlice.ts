@@ -59,10 +59,10 @@ export const authSlice = createSlice({
       action: PayloadAction<{ access: string; refresh: string }>
     ) => {
       state.accessToken = setUserDetails(action.payload.access);
-      state.isAuthenticated = true;
       state.refreshToken = action.payload.refresh;
       localStorage.setItem("accessToken", action.payload.access);
       localStorage.setItem("refreshToken", action.payload.refresh);
+      state.isAuthenticated = true;
     },
   },
 });

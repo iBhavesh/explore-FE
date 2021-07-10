@@ -121,9 +121,12 @@ const SigninPage = () => {
                   process.env.REACT_APP_API + "user/signin",
                   values
                 );
-                dispatch(login(response.data));
+                await dispatch(login(response.data));
+
                 if (to) history.replace(to);
                 else history.replace("/");
+
+                window.location.reload();
               } catch (e) {
                 let message = "Something went wrong!";
                 if (typeof e.response.data == "object")

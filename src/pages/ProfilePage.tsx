@@ -9,7 +9,7 @@ import {
   fetchFollowedByUserStatus,
   fetchFollowers,
   fetchFollowing,
-} from "../features/follower/follower-actions";
+} from "../features/follower/followerSlice";
 import { fetchUserPosts } from "../features/posts/postsSlice";
 import { fetchUser } from "../features/user/userSlice";
 

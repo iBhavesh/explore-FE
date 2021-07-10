@@ -18,6 +18,7 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import SettingsIcon from "@material-ui/icons/Settings";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import {
+  Badge,
   Drawer,
   Hidden,
   Link,
@@ -154,6 +155,9 @@ export default function Header() {
   const matches = useMediaQuery(theme.breakpoints.up("md"));
   const history = useHistory();
   const user_id = useAppSelector((state) => state.auth.accessToken!.user_id);
+  const follow_requests = useAppSelector(
+    (state) => state.follower.follow_requests
+  );
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const handleNotificationsClick = () => {
@@ -200,7 +204,12 @@ export default function Header() {
         <Divider />
         <ListItem onClick={handleRequestsClick} button key="Requests">
           <ListItemIcon>
-            <PersonAddIcon />
+            <Badge
+              variant="standard"
+              badgeContent={follow_requests?.length ?? null}
+            >
+              <PersonAddIcon />
+            </Badge>
           </ListItemIcon>
           <ListItemText primary="Requests" />
         </ListItem>
@@ -241,7 +250,9 @@ export default function Header() {
             onClick={handleDrawerToggle}
             className={classes.menuButton}
           >
-            <MenuIcon />
+            <Badge badgeContent={follow_requests?.length ?? null}>
+              <MenuIcon />
+            </Badge>
           </IconButton>
           <Link
             component={RouterLink}

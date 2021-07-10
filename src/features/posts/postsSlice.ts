@@ -93,7 +93,12 @@ const postsSlice = createSlice({
       })
       .addCase(fetchAllPosts.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.posts = action.payload;
+        if (action.payload) state.posts = action.payload;
+        else state.posts = [];
+      })
+      .addCase(fetchAllPosts.rejected, (state, action) => {
+        state.status = "succeeded";
+        state.posts = [];
       })
       .addCase(fetchUserPosts.pending, (state, action) => {
         state.status = "loading";
