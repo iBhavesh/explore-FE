@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axiosInstance from "../../axios";
 
-type User = {
+export type User = {
   id: number;
   email: string;
   first_name: string;
@@ -26,12 +26,8 @@ const initialState: UserState = {
 export const fetchUser = createAsyncThunk(
   "user/fetchUser",
   async (user_id: number) => {
-    // try{
     const response = await axiosInstance.get<User>(`/user/${user_id}`);
     return response.data;
-    // }catch(e){
-    //     return e.
-    // }
   }
 );
 

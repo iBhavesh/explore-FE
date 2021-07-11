@@ -74,7 +74,6 @@ const placeholderImage =
 const ProfileHead = () => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  const [listContent, setlistContent] = useState<ReactNode>();
   const user = useAppSelector((state) => state.user.user);
   const currentUser = useAppSelector(
     (state) => state.auth.accessToken!.user_id
@@ -84,6 +83,7 @@ const ProfileHead = () => {
   const followed_by_user = useAppSelector(
     (state) => state.follower.followed_by_user
   );
+  const [modalTitle, setModalTitle] = useState("Followers");
   const [isInitial, setIsInitial] = useState(true);
   const [profileUrl, setProfileUrl] = useState<null | string>(null);
   const [imageIsLoading, setImageIsLoading] = useState(true);
@@ -118,31 +118,12 @@ const ProfileHead = () => {
   const handleFollowerModalOpen = () => {
     if (followers.length === 0) return;
     setOpen(true);
-    const content = followers.map((item, i, arr) => {
-      if (i === arr.length - 1)
-        return <FollowListItem user={item} isFollower />;
-      return (
-        <>
-          <FollowListItem user={item} isFollower />
-          <Divider />
-        </>
-      );
-    });
-    setlistContent(content);
+    setModalTitle("Followers");
   };
   const handleFollowingModalOpen = () => {
     if (following.length === 0) return;
     setOpen(true);
-    const content = following.map((item, i, arr) => {
-      if (i === arr.length - 1) return <FollowListItem user={item} />;
-      return (
-        <>
-          <FollowListItem user={item} />
-          <Divider />
-        </>
-      );
-    });
-    setlistContent(content);
+    setModalTitle("Following");
   };
 
   const handleFollowerModalClose = () => {
@@ -165,6 +146,50 @@ const ProfileHead = () => {
     buttonVariant = "outlined";
   }
 
+  let listContent: ReactNode;
+
+  if (open) {
+    if (modalTitle === "Followers") {
+      if (followers.length === 0) setOpen(false);
+      listContent = followers.map((item, i, arr) => {
+        if (i === arr.length - 1)
+          return (
+            <FollowListItem
+              currentUser={currentUser}
+              user={user}
+              item={item}
+              isFollower
+            />
+          );
+        return (
+          <>
+            <FollowListItem
+              currentUser={currentUser}
+              user={user}
+              item={item}
+              isFollower
+            />
+            <Divider />
+          </>
+        );
+      });
+    } else {
+      if (following.length === 0) setOpen(false);
+      listContent = following.map((item, i, arr) => {
+        if (i === arr.length - 1)
+          return (
+            <FollowListItem currentUser={currentUser} user={user} item={item} />
+          );
+        return (
+          <>
+            <FollowListItem currentUser={currentUser} user={user} item={item} />
+            <Divider />
+          </>
+        );
+      });
+    }
+  }
+
   return (
     <Grid container justify="center">
       <Modal
@@ -179,6 +204,10 @@ const ProfileHead = () => {
       >
         <Grow in={open}>
           <Card className={classes.modalCard}>
+            <Typography style={{ textAlign: "center" }} variant="h6">
+              {modalTitle}
+            </Typography>
+            <Divider />
             <List className={classes.list}>{listContent}</List>
           </Card>
         </Grow>

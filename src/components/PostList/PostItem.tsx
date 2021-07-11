@@ -119,7 +119,7 @@ const PostItem = ({ post, singlePost }: Props) => {
             setErrorMessage("Something Went Wrong");
           });
       if (post.author.profile_picture)
-        axiosInstance.get(post.media).then((response) => {
+        axiosInstance.get(post.author.profile_picture).then((response) => {
           setAvatarUrl(response.data.url);
         });
       setIsInitial(false);
@@ -131,9 +131,9 @@ const PostItem = ({ post, singlePost }: Props) => {
     setIsLiked,
     user_id,
     setLikeCount,
+    post.author.profile_picture,
     post.id,
     post.media,
-    post.author.profile_picture,
     post.media_type,
   ]);
 
@@ -251,7 +251,7 @@ const PostItem = ({ post, singlePost }: Props) => {
             className: classes.title,
             onClick: handleTitleClick,
           }}
-          subheader={createdAt.toLocaleString("en-US", {
+          subheader={createdAt.toLocaleString([], {
             month: "long",
             year: "numeric",
             day: "numeric",

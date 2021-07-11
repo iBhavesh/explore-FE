@@ -13,6 +13,7 @@ import {
   DialogActions,
   Button,
   DialogContent,
+  CircularProgress,
 } from "@material-ui/core";
 import { blue } from "@material-ui/core/colors";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
@@ -74,6 +75,7 @@ type Props = { comment: Comment };
 const CommentItem = (props: Props) => {
   const classes = useStyles();
   const [isLiked, setIsLiked] = useState(false);
+  const [deleteIsClicked, setDeleteIsClicked] = useState(false);
   const [open, setOpen] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
   const [likeCount, setLikeCount] = useState(0);
@@ -131,6 +133,7 @@ const CommentItem = (props: Props) => {
     const url = `posts/${props.comment.post.id}/comments/${props.comment.id}`;
     dispatch(deletePostComment({ url, post_id: props.comment.post.id }));
     setOpen(false);
+    setDeleteIsClicked(true);
   };
 
   const handleDisagree = () => {
@@ -147,15 +150,20 @@ const CommentItem = (props: Props) => {
             action={
               props.comment.author.id === user_id ||
               props.comment.post.author === user_id ? (
-                <IconButton
-                  style={{
-                    color: "#ee2929",
-                    padding: "8px",
-                  }}
-                  onClick={handleDeleteClick}
-                >
-                  <Delete />
-                </IconButton>
+                !deleteIsClicked ? (
+                  <IconButton
+                    style={{
+                      color: "#ee2929",
+                      padding: "8px",
+                    }}
+                    onClick={handleDeleteClick}
+                    size="small"
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
+                ) : (
+                  <CircularProgress size={25} />
+                )
               ) : null
             }
             title={
@@ -196,7 +204,7 @@ const CommentItem = (props: Props) => {
                 }}
                 variant="subtitle2"
               >
-                {likeCount}
+                {likeCount > 0 ? likeCount : null}
               </Link>
               <IconButton
                 style={{

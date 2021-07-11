@@ -16,6 +16,7 @@ import SearchIcon from "@material-ui/icons/Search";
 import MenuIcon from "@material-ui/icons/Menu";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import SettingsIcon from "@material-ui/icons/Settings";
+import AddAPhotoOutlinedIcon from "@material-ui/icons/AddAPhotoOutlined";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import {
   Badge,
@@ -29,7 +30,8 @@ import {
   useMediaQuery,
 } from "@material-ui/core";
 import { Divider } from "@material-ui/core";
-import { useAppSelector } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { openAddPostModal } from "../../features/uiSlice/uiSlice";
 
 const drawerWidth = 240;
 
@@ -154,6 +156,7 @@ export default function Header() {
   const theme = useTheme();
   const matches = useMediaQuery(theme.breakpoints.up("md"));
   const history = useHistory();
+  const dispatch = useAppDispatch();
   const user_id = useAppSelector((state) => state.auth.accessToken!.user_id);
   const follow_requests = useAppSelector(
     (state) => state.follower.follow_requests
@@ -181,6 +184,11 @@ export default function Header() {
     setMobileOpen(!mobileOpen);
   };
 
+  const handleAddPostClick = () => {
+    if (!matches) handleDrawerToggle();
+    dispatch(openAddPostModal());
+  };
+
   const drawer = (
     <div>
       <div style={{ display: "flex" }} className={classes.toolbar}>
@@ -202,6 +210,13 @@ export default function Header() {
       </div>
       <List>
         <Divider />
+        <ListItem onClick={handleAddPostClick} button key="AddPost">
+          <ListItemIcon>
+            <AddAPhotoOutlinedIcon />
+          </ListItemIcon>
+          <ListItemText primary="Add Post" />
+        </ListItem>
+        <Divider />
         <ListItem onClick={handleRequestsClick} button key="Requests">
           <ListItemIcon>
             <Badge
@@ -214,18 +229,18 @@ export default function Header() {
           <ListItemText primary="Requests" />
         </ListItem>
         <Divider />
-        <ListItem onClick={handleNotificationsClick} button key="Notifications">
-          <ListItemIcon>
-            <NotificationsIcon />
-          </ListItemIcon>
-          <ListItemText primary="Notifications" />
-        </ListItem>
-        <Divider />
         <ListItem onClick={handleProfileClick} button key="Profile">
           <ListItemIcon>
             <AccountCircle />
           </ListItemIcon>
           <ListItemText primary="Profile" />
+        </ListItem>
+        <Divider />
+        <ListItem onClick={handleNotificationsClick} button key="Notifications">
+          <ListItemIcon>
+            <NotificationsIcon />
+          </ListItemIcon>
+          <ListItemText primary="Notifications" />
         </ListItem>
         <Divider />
         <ListItem onClick={handleAccountClick} button key="Account">

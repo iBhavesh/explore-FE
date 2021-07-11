@@ -75,7 +75,7 @@ export const cancelFollowRequest = createAsyncThunk(
 export const unfollowUser = createAsyncThunk(
   "follower/unfollowUser",
   async (user_id: number, thunkAPI) => {
-    const response = await axiosInstance.post(
+    const response = await axiosInstance.delete(
       `user/${user_id}/following/unfollow`
     );
     await thunkAPI.dispatch(fetchFollowedByUserStatus(user_id));
@@ -87,7 +87,7 @@ export const unfollowUser = createAsyncThunk(
 export const removeFollower = createAsyncThunk(
   "follower/removeFollower",
   async (user_id: number, thunkAPI) => {
-    const response = await axiosInstance.post(
+    const response = await axiosInstance.delete(
       `user/${user_id}/follower/remove`
     );
     await thunkAPI.dispatch(fetchFollowers(user_id));

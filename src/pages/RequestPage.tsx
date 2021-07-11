@@ -1,6 +1,7 @@
 import { Grid } from "@material-ui/core";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
+import NoRequestsFound from "../components/Requests/NoRequestFound";
 import RequestItem from "../components/Requests/RequestItem";
 import { fetchFollowRequests } from "../features/follower/followerSlice";
 
@@ -23,11 +24,7 @@ const RequestPage = () => {
       </Grid>
     );
 
-  return (
-    <Grid container direction="column" alignItems="center">
-      <h2>You have no follow requests</h2>
-    </Grid>
-  );
+  return <NoRequestsFound />;
 };
 
 export default RequestPage;

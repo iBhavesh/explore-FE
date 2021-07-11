@@ -1,15 +1,15 @@
 import { Button, CircularProgress } from "@material-ui/core";
+import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { declineFollowRequest } from "../../features/follower/followerSlice";
-
-let isClicked = false;
 
 const DeclineButton = (props: { id: number }) => {
   const dispatch = useAppDispatch();
   const status = useAppSelector((state) => state.follower.status);
+  const [isClicked, setIsClicked] = useState(false);
 
   const handleDeclineClick = () => {
-    isClicked = true;
+    setIsClicked(true);
     dispatch(declineFollowRequest(props.id));
   };
 

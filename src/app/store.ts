@@ -5,9 +5,11 @@ import commentReducer from "../features/comments/commentsSlice";
 import userReducer from "../features/user/userSlice";
 import followerReducer from "../features/follower/followerSlice";
 import notificationReducer from "../features/notifications/notificationsSlice";
+import uiSlice from "../features/uiSlice/uiSlice";
 
 export const store = configureStore({
   reducer: {
+    ui: uiSlice,
     follower: followerReducer,
     auth: authReducer,
     user: userReducer,
