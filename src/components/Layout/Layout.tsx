@@ -12,9 +12,12 @@ import {
   Divider,
   TextField,
   Grid,
+  Button,
 } from "@material-ui/core";
 import ClearRoundedIcon from "@material-ui/icons/ClearRounded";
 import { closeAddPostModal } from "../../features/uiSlice/uiSlice";
+import CloudUploadRoundedIcon from "@material-ui/icons/CloudUploadRounded";
+import AddAPhotoRoundedIcon from "@material-ui/icons/AddAPhotoRounded";
 
 type Props = {
   children: ReactNode;
@@ -48,7 +51,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     modalCard: {
       maxHeight: 400,
-      width: 400,
+      maxWidth: 400,
       borderRadius: 8,
       outline: "none",
       padding: theme.spacing(1),
@@ -63,6 +66,24 @@ const useStyles = makeStyles((theme: Theme) =>
     modalForm: {
       display: "flex",
       width: "100%",
+    },
+    imageDiv: {
+      border: "1px solid black",
+      height: 200,
+      width: "100%",
+      marginBottom: theme.spacing(1),
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      cursor: "pointer",
+      position: "relative",
+    },
+    fileInput: {
+      width: "100%",
+      height: "100%",
+      position: "absolute",
+      cursor: "pointer",
+      opacity: 0,
     },
   })
 );
@@ -117,15 +138,44 @@ const Layout = (props: Props) => {
               </IconButton>
             </div>
             <Divider />
-            <Grid style={{ paddingTop: 8 }} container>
+            <Grid style={{ paddingTop: 8 }} container justify="flex-end">
+              <div className={classes.imageDiv}>
+                <AddAPhotoRoundedIcon />
+                <input
+                  accept="image/*,video/*"
+                  className={classes.fileInput}
+                  id="contained-button-file"
+                  multiple
+                  type="file"
+                />
+              </div>
+              <Grid item xs={12}>
+                <input
+                  accept="image/*,video/*"
+                  // className={classes.input}
+                  id="contained-button-file"
+                  multiple
+                  type="file"
+                />
+              </Grid>
               <Grid item xs={12}>
                 <TextField
                   variant="outlined"
                   fullWidth
                   multiline
-                  rows={5}
+                  rows={4}
                   placeholder="Caption..."
                 />
+              </Grid>
+              <Grid style={{ marginTop: 4 }} item>
+                <Button
+                  variant="contained"
+                  color="default"
+                  // className={classes.button}
+                  startIcon={<CloudUploadRoundedIcon />}
+                >
+                  Upload
+                </Button>
               </Grid>
             </Grid>
           </Card>
