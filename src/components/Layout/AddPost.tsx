@@ -22,6 +22,7 @@ import AddAPhotoRoundedIcon from "@material-ui/icons/AddAPhotoRounded";
 import axiosInstance from "../../axios";
 import { useRef } from "react";
 import { useHistory } from "react-router-dom";
+import { fetchUser } from "../../features/user/userSlice";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -78,6 +79,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const AddPost = () => {
   const modalOpen = useAppSelector((state) => state.ui.isOpenAddPostModal);
+  const postType = useAppSelector((state) => state.ui.postType);
   const user = useAppSelector((state) => state.auth.accessToken!.user_id);
   const dispatch = useAppDispatch();
   const [mediaSrc, setMediaSrc] = useState("");
@@ -101,17 +103,20 @@ const AddPost = () => {
       setStatus("uploading");
       console.dir(event.target);
       const formData = new FormData();
-      formData.append("content_type", "post");
+      formData.append("content_type", postType);
       formData.append("media_type", isVideo ? "video" : "image");
       formData.append("author", String(user));
       formData.append("media", fileInputRef!.current!.files![0]);
-      formData.append("caption", captionRef.current!.value);
+      if (postType === "post")
+        formData.append("caption", captionRef.current!.value);
+      const url = postType === "post" ? "posts/" : "user/profile/picture";
       axiosInstance
-        .post("posts/", formData, { timeout: 100000 })
+        .post(url, formData, { timeout: 100000 })
         .then((response) => {
           setStatus("succeeded");
           setMediaSrc("");
-          history.push("/posts/" + response.data.id);
+          if (postType === "profile") dispatch(fetchUser(user));
+          if (postType === "post") history.push("/posts/" + response.data.id);
           handleModalClose();
         })
         .catch((e) => {
@@ -140,7 +145,7 @@ const AddPost = () => {
             <div className={classes.modalTitle}>
               <div className={classes.grow1} />
               <Typography style={{ textAlign: "center" }} variant="h6">
-                Add Post
+                {postType === "post" ? "Add post" : "Upload Photo"}
               </Typography>
               <div className={classes.grow1} />
               <IconButton
@@ -163,7 +168,7 @@ const AddPost = () => {
                 <input
                   ref={fileInputRef}
                   required
-                  accept="image/*,video/*"
+                  accept={postType === "post" ? "image/*,video/*" : "image/*"}
                   className={classes.fileInput}
                   id="contained-button-file"
                   multiple
@@ -208,16 +213,18 @@ const AddPost = () => {
                   />
                 </>
               ) : null}
-              <Grid item xs={12}>
-                <TextField
-                  inputRef={captionRef}
-                  variant="outlined"
-                  fullWidth
-                  multiline
-                  rows={2}
-                  placeholder="Caption..."
-                />
-              </Grid>
+              {postType === "post" ? (
+                <Grid item xs={12}>
+                  <TextField
+                    inputRef={captionRef}
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    rows={2}
+                    placeholder="Caption..."
+                  />
+                </Grid>
+              ) : null}
               <Grid style={{ marginTop: 4 }} item>
                 {status === "uploading" ? (
                   <CircularProgress size={25} />
