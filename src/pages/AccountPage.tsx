@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
+import { Formik, Field, Form } from "formik";
+import { TextField } from "formik-material-ui";
+import * as Yup from "yup";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
+import DateFnsUtils from "@date-io/date-fns";
+import { DatePicker } from "formik-material-ui-pickers";
 import {
   Button,
+  MenuItem,
   Card,
   CardMedia,
   Divider,
@@ -24,13 +31,14 @@ import { openUploadProfileModal } from "../features/uiSlice/uiSlice";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      width: 400,
+      width: 350,
       borderRadius: theme.spacing(2),
       padding: theme.spacing(2),
-      marginBottom: theme.spacing(2),
+      // marginBottom: theme.spacing(2),
       [theme.breakpoints.up("sm")]: {
         display: "flex",
-        width: 600,
+        flexDirection: "column",
+        width: 400,
       },
     },
     profilePicture: {
@@ -40,6 +48,16 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     title: {
       // marginTop: theme.spacing(1),
+    },
+    gender: {
+      minWidth: "100px",
+    },
+    submit: {
+      margin: theme.spacing(3, 0, 2),
+    },
+    progress: {
+      margin: theme.spacing(3, "auto"),
+      maxWidth: "40px",
     },
     grow: {
       flexGrow: 5,
@@ -66,11 +84,26 @@ const useStyles = makeStyles((theme: Theme) =>
         backgroundColor: "#3078ca",
       },
     },
+    form: {
+      marginTop: theme.spacing(2),
+    },
   })
 );
 
 const placeholderImage =
   "https://www.hmiscfl.org/wp-content/uploads/2018/06/placeholder.png";
+
+const date = new Date();
+date.setFullYear(date.getFullYear() - 13);
+
+const validationSchema = Yup.object({
+  first_name: Yup.string().required("Required"),
+  last_name: Yup.string().required("Required"),
+  email: Yup.string().email("Invalid email address").required("Required"),
+  date_of_birth: Yup.date()
+    .required("Date of birth is required")
+    .max(date, "You should be atleast 13 years old to signup"),
+});
 
 const AccountPage = () => {
   const classes = useStyles();
@@ -111,6 +144,22 @@ const AccountPage = () => {
   const handleUploadModalOpen = () => {
     setShowUploadModal(true);
   };
+
+  let initialValues = {
+    first_name: "",
+    last_name: "",
+    email: "",
+    date_of_birth: date,
+  };
+
+  if (user) {
+    initialValues = {
+      first_name: user!.first_name,
+      last_name: user!.last_name,
+      email: user!.email,
+      date_of_birth: new Date(user!.date_of_birth),
+    };
+  }
 
   if (userStatus === "loading") return <CircularIndeterminate />;
   if (error) return <Typography variant="h5">User Not Found</Typography>;
@@ -157,6 +206,126 @@ const AccountPage = () => {
             </Button>
           </div>
         </div>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={async (values, { setSubmitting }) => {
+            const dob =
+              values.date_of_birth.getFullYear() +
+              "-" +
+              (+values.date_of_birth.getMonth() + 1) +
+              "-" +
+              values.date_of_birth.getDate();
+            try {
+              await axiosInstance.patch("user/profile/" + user!.id, {
+                ...values,
+                date_of_birth: dob,
+              });
+            } catch (e) {}
+            setSubmitting(false);
+          }}
+        >
+          {({ submitForm, isSubmitting, touched, errors }) => (
+            <MuiPickersUtilsProvider utils={DateFnsUtils}>
+              <Form className={classes.form}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <Field
+                      component={TextField}
+                      name="first_name"
+                      variant="outlined"
+                      fullWidth
+                      id="first_name"
+                      label="First Name"
+                      defaultValue={user?.first_name}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Field
+                      component={TextField}
+                      variant="outlined"
+                      fullWidth
+                      id="last_name"
+                      label="Last Name"
+                      name="last_name"
+                      defaultValue={user?.last_name}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Field
+                      component={TextField}
+                      variant="outlined"
+                      fullWidth
+                      disabled
+                      id="email"
+                      label="Email Address"
+                      name="email"
+                      value={user?.email}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Field
+                      component={DatePicker}
+                      inputVariant="outlined"
+                      format="yyyy/MM/dd"
+                      fullWidth
+                      id="date_of_birth"
+                      label="Date of birth"
+                      name="date_of_birth"
+                      value={new Date(user?.date_of_birth ?? "")}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Field
+                      className={classes.gender}
+                      component={TextField}
+                      type="text"
+                      name="gender"
+                      label="Gender"
+                      select
+                      variant="outlined"
+                      defaultValue={user?.gender}
+                      margin="normal"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    >
+                      <MenuItem key="Male" value="Male">
+                        Male
+                      </MenuItem>
+                      <MenuItem key="Female" value="Female">
+                        Female
+                      </MenuItem>
+                      <MenuItem key="Other" value="Other">
+                        Other
+                      </MenuItem>
+                    </Field>
+                  </Grid>
+                </Grid>
+                <Grid
+                  style={{ marginTop: 16 }}
+                  container
+                  justify="space-between"
+                >
+                  <Grid item>
+                    <Button variant="contained">Change Password</Button>
+                  </Grid>
+                  <Grid item>
+                    {isSubmitting ? (
+                      <div className={classes.progress}>
+                        <CircularProgress />
+                      </div>
+                    ) : (
+                      <Button type="submit" variant="contained" color="primary">
+                        Update
+                      </Button>
+                    )}
+                  </Grid>
+                </Grid>
+              </Form>
+            </MuiPickersUtilsProvider>
+          )}
+        </Formik>
       </Card>
       <Modal
         open={showUploadModal}

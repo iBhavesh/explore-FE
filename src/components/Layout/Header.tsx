@@ -18,6 +18,7 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import SettingsIcon from "@material-ui/icons/Settings";
 import AddAPhotoOutlinedIcon from "@material-ui/icons/AddAPhotoOutlined";
 import NotificationsIcon from "@material-ui/icons/Notifications";
+import ExitToAppRoundedIcon from "@material-ui/icons/ExitToAppRounded";
 import {
   Badge,
   Drawer,
@@ -248,6 +249,13 @@ export default function Header() {
             <SettingsIcon />
           </ListItemIcon>
           <ListItemText primary="Account" />
+        </ListItem>
+        <Divider />
+        <ListItem onClick={handleAccountClick} button key="Signout">
+          <ListItemIcon>
+            <ExitToAppRoundedIcon />
+          </ListItemIcon>
+          <ListItemText primary="Signout" />
         </ListItem>
         <Divider />
       </List>

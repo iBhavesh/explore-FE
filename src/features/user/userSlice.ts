@@ -9,6 +9,7 @@ export type User = {
   date_of_birth: string;
   profile_picture: string | null;
   is_private_profile: boolean;
+  gender: "Male" | "Female" | "Other";
 };
 
 type UserState = {
