@@ -13,11 +13,14 @@ import {
   TextField,
   Grid,
   Button,
+  CardMedia,
 } from "@material-ui/core";
 import ClearRoundedIcon from "@material-ui/icons/ClearRounded";
 import { closeAddPostModal } from "../../features/uiSlice/uiSlice";
 import CloudUploadRoundedIcon from "@material-ui/icons/CloudUploadRounded";
 import AddAPhotoRoundedIcon from "@material-ui/icons/AddAPhotoRounded";
+import { useState } from "react";
+import axiosInstance from "../../axios";
 
 type Props = {
   children: ReactNode;
@@ -50,7 +53,7 @@ const useStyles = makeStyles((theme: Theme) =>
       outline: "none",
     },
     modalCard: {
-      maxHeight: 400,
+      maxHeight: 800,
       maxWidth: 400,
       borderRadius: 8,
       outline: "none",
@@ -92,11 +95,23 @@ const Layout = (props: Props) => {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const modalOpen = useAppSelector((state) => state.ui.isOpenAddPostModal);
   const dispatch = useAppDispatch();
+  const [mediaSrc, setMediaSrc] = useState("");
+  const [isVideo, setIsVideo] = useState(false);
 
   const classes = useStyles();
 
   const handleModalClose = () => {
     dispatch(closeAddPostModal());
+  };
+
+  const handleFormSubmit: React.FormEventHandler = (event) => {
+    event.preventDefault();
+    console.dir(event.target);
+    const formData = new FormData();
+    // formData.append('')
+    axiosInstance.post("test/path", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   };
 
   if (!isAuthenticated) return <>{props.children}</>;
@@ -121,63 +136,104 @@ const Layout = (props: Props) => {
       >
         <Grow in={modalOpen}>
           <Card className={classes.modalCard}>
-            <div className={classes.modalTitle}>
-              <div className={classes.grow1} />
-              <Typography style={{ textAlign: "center" }} variant="h6">
-                Add Post
-              </Typography>
-              <div className={classes.grow1} />
-              <IconButton
-                onClick={handleModalClose}
-                style={{
-                  color: "#ee2929",
-                  padding: 0,
-                }}
-              >
-                <ClearRoundedIcon />
-              </IconButton>
-            </div>
-            <Divider />
-            <Grid style={{ paddingTop: 8 }} container justify="flex-end">
-              <div className={classes.imageDiv}>
-                <AddAPhotoRoundedIcon />
-                <input
-                  accept="image/*,video/*"
-                  className={classes.fileInput}
-                  id="contained-button-file"
-                  multiple
-                  type="file"
-                />
-              </div>
-              <Grid item xs={12}>
-                <input
-                  accept="image/*,video/*"
-                  // className={classes.input}
-                  id="contained-button-file"
-                  multiple
-                  type="file"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  fullWidth
-                  multiline
-                  rows={4}
-                  placeholder="Caption..."
-                />
-              </Grid>
-              <Grid style={{ marginTop: 4 }} item>
-                <Button
-                  variant="contained"
-                  color="default"
-                  // className={classes.button}
-                  startIcon={<CloudUploadRoundedIcon />}
+            <form onSubmit={handleFormSubmit} encType="multipart/form-data">
+              <div className={classes.modalTitle}>
+                <div className={classes.grow1} />
+                <Typography style={{ textAlign: "center" }} variant="h6">
+                  Add Post
+                </Typography>
+                <div className={classes.grow1} />
+                <IconButton
+                  onClick={handleModalClose}
+                  style={{
+                    // color: "#ee2929",
+                    padding: 0,
+                  }}
                 >
-                  Upload
-                </Button>
+                  <ClearRoundedIcon />
+                </IconButton>
+              </div>
+              <Divider />
+              <Grid
+                style={{ position: "relative" }}
+                container
+                justify="flex-end"
+              >
+                <div
+                  style={{ display: mediaSrc === "" ? "flex" : "none" }}
+                  className={classes.imageDiv}
+                >
+                  <AddAPhotoRoundedIcon />
+                  <input
+                    required
+                    accept="image/*,video/*"
+                    className={classes.fileInput}
+                    id="contained-button-file"
+                    multiple
+                    name="fileToUpload"
+                    type="file"
+                    onChange={(event) => {
+                      const file = event.target.files![0];
+                      if (file) {
+                        const type = file.type;
+                        setIsVideo(type.startsWith("video"));
+                        const src = URL.createObjectURL(event.target.files![0]);
+                        setMediaSrc(src);
+                      }
+                    }}
+                  />
+                </div>
+                {mediaSrc ? (
+                  <>
+                    <IconButton
+                      onClick={(event) => {
+                        setMediaSrc("");
+                      }}
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.6)",
+                        position: "absolute",
+                        top: 5,
+                        right: 5,
+                        zIndex: 1,
+                      }}
+                      size="small"
+                    >
+                      <ClearRoundedIcon
+                        fontSize="small"
+                        style={{ color: "#fff" }}
+                      />
+                    </IconButton>
+                    <CardMedia
+                      style={{ maxHeight: 200 }}
+                      component={isVideo ? "video" : "img"}
+                      src={mediaSrc}
+                      controls
+                    />
+                  </>
+                ) : null}
+                <Grid item xs={12}>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    rows={2}
+                    placeholder="Caption..."
+                  />
+                </Grid>
+                <Grid style={{ marginTop: 4 }} item>
+                  <Button
+                    variant="contained"
+                    disabled={mediaSrc === ""}
+                    color="default"
+                    // className={classes.button}
+                    startIcon={<CloudUploadRoundedIcon />}
+                    type="submit"
+                  >
+                    Upload
+                  </Button>
+                </Grid>
               </Grid>
-            </Grid>
+            </form>
           </Card>
         </Grow>
       </Modal>
