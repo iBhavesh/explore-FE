@@ -281,8 +281,8 @@ const PostItem = ({ post, singlePost }: Props) => {
           <CardMedia
             component="video"
             onLoad={handleImageLoad}
+            controls
             src={imageUrl}
-            style={isImageLoading ? { display: "none" } : {}}
           />
         ) : null}
         <CardContent>
