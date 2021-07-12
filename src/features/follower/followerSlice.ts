@@ -14,7 +14,7 @@ type FollowerState = {
   followers: Follower[];
   following: Follower[];
   followed_by_user: Follower[];
-  follow_requests: any[];
+  follow_requests: Follower[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: any | null;
 };

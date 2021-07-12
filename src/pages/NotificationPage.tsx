@@ -1,7 +1,10 @@
 import { useEffect } from "react";
 import { Grid } from "@material-ui/core";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { fetchNotifications } from "../features/notifications/notificationsSlice";
+import {
+  fetchNotifications,
+  readAllNotifications,
+} from "../features/notifications/notificationsSlice";
 import NotificationItem from "../components/Notifications/NotificationItem";
 import NoNotificationFound from "../components/Notifications/NoNotificationFound";
 
@@ -17,6 +20,7 @@ const NotificationPage = () => {
 
   useEffect(() => {
     dispatch(fetchNotifications());
+    dispatch(readAllNotifications());
   }, [dispatch]);
 
   if (notifications.length > 0)

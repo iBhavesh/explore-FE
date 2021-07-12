@@ -12,16 +12,11 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import Snackbar from "@material-ui/core/Snackbar";
-import MuiAlert, { AlertProps } from "@material-ui/lab/Alert";
 import { useAppDispatch } from "../app/hooks";
 import axios from "axios";
 import { login } from "../features/auth/authSlice";
-import { useEffect, useState } from "react";
-
-const Alert = (props: AlertProps) => {
-  return <MuiAlert elevation={3} variant="filled" {...props} />;
-};
+import { useEffect } from "react";
+import { showError } from "../features/uiSlice/uiSlice";
 
 const useStyles = makeStyles((theme) => ({
   pageWrapper: {
@@ -72,8 +67,6 @@ const validationSchema = Yup.object({
 });
 
 const SigninPage = () => {
-  const [open, setOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useAppDispatch();
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
@@ -88,25 +81,11 @@ const SigninPage = () => {
   if (to) registerRoute = "/register?to=" + to;
   const history = useHistory();
 
-  const handleSnackBarClose = () => {
-    setOpen(false);
-  };
-
   const classes = useStyles();
 
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
-      <Snackbar
-        open={open}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-        onClose={handleSnackBarClose}
-        autoHideDuration={3000}
-      >
-        <Alert icon={false} severity="error" onClose={handleSnackBarClose}>
-          {errorMessage}
-        </Alert>
-      </Snackbar>
       <Paper className={classes.paper} elevation={3}>
         <div className={classes.pageWrapper}>
           <Typography className={classes.heading} component="h1" variant="h5">
@@ -133,8 +112,7 @@ const SigninPage = () => {
                   for (const key in e.response.data) {
                     message = e.response.data[key] + "\n";
                   }
-                setErrorMessage(message);
-                setOpen(true);
+                dispatch(showError(message));
               }
               setSubmitting(false);
             }}

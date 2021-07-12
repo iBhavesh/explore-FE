@@ -27,6 +27,7 @@ import axiosInstance from "../axios";
 import CircularIndeterminate from "../components/UI/CircularIndeterminate";
 import { fetchUser } from "../features/user/userSlice";
 import { openUploadProfileModal } from "../features/uiSlice/uiSlice";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -116,6 +117,7 @@ const AccountPage = () => {
   const error = useAppSelector((state) => state.user.error);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const history = useHistory();
 
   useEffect(() => {
     dispatch(fetchUser(user_id));
@@ -237,7 +239,6 @@ const AccountPage = () => {
                       fullWidth
                       id="first_name"
                       label="First Name"
-                      defaultValue={user?.first_name}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -248,7 +249,6 @@ const AccountPage = () => {
                       id="last_name"
                       label="Last Name"
                       name="last_name"
-                      defaultValue={user?.last_name}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -260,7 +260,6 @@ const AccountPage = () => {
                       id="email"
                       label="Email Address"
                       name="email"
-                      value={user?.email}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -272,7 +271,6 @@ const AccountPage = () => {
                       id="date_of_birth"
                       label="Date of birth"
                       name="date_of_birth"
-                      value={new Date(user?.date_of_birth ?? "")}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -284,7 +282,7 @@ const AccountPage = () => {
                       label="Gender"
                       select
                       variant="outlined"
-                      defaultValue={user?.gender}
+                      defaultValue={user?.gender ?? "Male"}
                       margin="normal"
                       InputLabelProps={{
                         shrink: true,
@@ -308,7 +306,14 @@ const AccountPage = () => {
                   justify="space-between"
                 >
                   <Grid item>
-                    <Button variant="contained">Change Password</Button>
+                    <Button
+                      onClick={() => {
+                        history.push("/account/change-password");
+                      }}
+                      variant="contained"
+                    >
+                      Change Password
+                    </Button>
                   </Grid>
                   <Grid item>
                     {isSubmitting ? (

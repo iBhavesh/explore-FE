@@ -14,6 +14,8 @@ const RequestPage = lazy(() => import("./pages/RequestPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const SinglePostPage = lazy(() => import("./pages/SinglePostPage"));
 const ForgetPasswordPage = lazy(() => import("./pages/ForgetPasswordPage"));
+const ChangePassword = lazy(() => import("./pages/ChangePasswordPage"));
+const SearchResultPage = lazy(() => import("./pages/SearchResultPage"));
 
 function App() {
   return (
@@ -44,6 +46,11 @@ function App() {
             <ProfilePage />
           </Suspense>
         </AuthorizedRoute>
+        <AuthorizedRoute exact path="/search">
+          <Suspense fallback={<CircularIndeterminate />}>
+            <SearchResultPage />
+          </Suspense>
+        </AuthorizedRoute>
         <AuthorizedRoute exact path="/notifications">
           <Suspense fallback={<CircularIndeterminate />}>
             <NotificationPage />
@@ -52,6 +59,11 @@ function App() {
         <AuthorizedRoute exact path="/account">
           <Suspense fallback={<CircularIndeterminate />}>
             <AccountPage />
+          </Suspense>
+        </AuthorizedRoute>
+        <AuthorizedRoute exact path="/account/change-password">
+          <Suspense fallback={<CircularIndeterminate />}>
+            <ChangePassword />
           </Suspense>
         </AuthorizedRoute>
         <AuthorizedRoute exact path="/requests">

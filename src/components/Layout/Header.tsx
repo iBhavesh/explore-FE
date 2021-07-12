@@ -33,6 +33,7 @@ import {
 import { Divider } from "@material-ui/core";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { openAddPostModal } from "../../features/uiSlice/uiSlice";
+import { logout } from "../../features/auth/authSlice";
 
 const drawerWidth = 240;
 
@@ -162,6 +163,7 @@ export default function Header() {
   const follow_requests = useAppSelector(
     (state) => state.follower.follow_requests
   );
+  const unread = useAppSelector((state) => state.notification.unread);
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const handleNotificationsClick = () => {
@@ -175,6 +177,10 @@ export default function Header() {
   const handleAccountClick = () => {
     if (!matches) handleDrawerToggle();
     history.push("/account");
+  };
+  const handleSignoutClick = () => {
+    // if (!matches) handleDrawerToggle();
+    dispatch(logout());
   };
   const handleRequestsClick = () => {
     if (!matches) handleDrawerToggle();
@@ -239,7 +245,9 @@ export default function Header() {
         <Divider />
         <ListItem onClick={handleNotificationsClick} button key="Notifications">
           <ListItemIcon>
-            <NotificationsIcon />
+            <Badge variant="standard" badgeContent={unread}>
+              <NotificationsIcon />
+            </Badge>
           </ListItemIcon>
           <ListItemText primary="Notifications" />
         </ListItem>
@@ -251,7 +259,7 @@ export default function Header() {
           <ListItemText primary="Account" />
         </ListItem>
         <Divider />
-        <ListItem onClick={handleAccountClick} button key="Signout">
+        <ListItem onClick={handleSignoutClick} button key="Signout">
           <ListItemIcon>
             <ExitToAppRoundedIcon />
           </ListItemIcon>
@@ -261,6 +269,13 @@ export default function Header() {
       </List>
     </div>
   );
+
+  const handleSearchClick: React.KeyboardEventHandler<HTMLInputElement> = (
+    event
+  ) => {
+    if (event.key !== "Enter") return;
+    history.push("/search?query=" + event.currentTarget.value);
+  };
 
   return (
     <>
@@ -273,7 +288,7 @@ export default function Header() {
             onClick={handleDrawerToggle}
             className={classes.menuButton}
           >
-            <Badge badgeContent={follow_requests?.length ?? null}>
+            <Badge badgeContent={follow_requests.length + unread}>
               <MenuIcon />
             </Badge>
           </IconButton>
@@ -294,6 +309,7 @@ export default function Header() {
             </div>
             <InputBase
               placeholder="Search…"
+              onKeyDown={handleSearchClick}
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput,

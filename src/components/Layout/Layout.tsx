@@ -3,6 +3,8 @@ import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import { useAppSelector } from "../../app/hooks";
 import Header from "./Header";
 import AddPost from "./AddPost";
+import SnackBarError from "./SnackBarError";
+import SnackBarSuccess from "./SnackBarSuccess";
 
 type Props = {
   children: ReactNode;
@@ -36,7 +38,14 @@ const Layout = (props: Props) => {
 
   const classes = useStyles();
 
-  if (!isAuthenticated) return <>{props.children}</>;
+  if (!isAuthenticated)
+    return (
+      <>
+        <SnackBarSuccess />
+        <SnackBarError />
+        {props.children}
+      </>
+    );
 
   return (
     <div className={classes.root}>
@@ -46,6 +55,8 @@ const Layout = (props: Props) => {
         {props.children}
       </main>
       <AddPost />
+      <SnackBarSuccess />
+      <SnackBarError />
     </div>
   );
 };
