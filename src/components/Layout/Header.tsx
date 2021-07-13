@@ -273,8 +273,11 @@ export default function Header() {
   const handleSearchClick: React.KeyboardEventHandler<HTMLInputElement> = (
     event
   ) => {
-    if (event.key !== "Enter") return;
-    history.push("/search?query=" + event.currentTarget.value);
+    if (event.key !== "Enter" || event.currentTarget.value.trim() === "")
+      return;
+    if (history.location.pathname === "/")
+      history.replace("/search?query=" + event.currentTarget.value);
+    else history.push("/search?query=" + event.currentTarget.value);
   };
 
   return (

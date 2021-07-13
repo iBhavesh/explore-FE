@@ -16,21 +16,19 @@ const SearchResultPage = () => {
   const users = useAppSelector((state) => state.users.users);
   const status = useAppSelector((state) => state.user.status);
   const dispatch = useAppDispatch();
+  const [queryParam, setQueryParam] = useState("");
   const query = useQuery();
-  const [isIntitial, setisIntitial] = useState(true);
 
   useEffect(() => {
     document.title = "Explore | Notifications";
   }, []);
 
   useEffect(() => {
-    if (query.get("query")) {
-      if (isIntitial) {
-        dispatch(fetchUserList(query.get("query")!));
-        setisIntitial(false);
-      }
+    if (query.get("query") !== queryParam) {
+      dispatch(fetchUserList(query.get("query")!));
+      setQueryParam(query.get("query")!);
     }
-  }, [query, dispatch, isIntitial]);
+  }, [query, dispatch, queryParam]);
 
   if (status === "loading") <CircularIndeterminate />;
 
