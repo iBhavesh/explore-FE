@@ -24,6 +24,7 @@ const uiSlice = createSlice({
   reducers: {
     openAddPostModal: (state) => {
       state.isOpenAddPostModal = true;
+      state.postType = "post";
     },
     openUploadProfileModal: (state) => {
       state.isOpenAddPostModal = true;
