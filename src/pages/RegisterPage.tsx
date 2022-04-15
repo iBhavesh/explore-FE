@@ -146,7 +146,7 @@ const RegisterPage = () => {
                   { ...values, date_of_birth: dob }
                 );
                 response = await axios.post(
-                  process.env.REACT_APP_API + "user/signin",
+                  process.env.REACT_APP_API + "user/login",
                   values
                 );
                 dispatch(login(response.data));

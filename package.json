@@ -54,8 +54,10 @@
     ]
   },
   "devDependencies": {
+    "@craco/craco": "^6.4.3",
     "@types/react-router-dom": "^5.1.7",
     "babel-plugin-import": "^1.13.3",
+    "craco-swc": "^0.2.0",
     "customize-cra": "^1.0.0",
     "react-app-rewired": "^2.1.8"
   }

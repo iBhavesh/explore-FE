@@ -4,14 +4,14 @@ import { useAppSelector } from "../../app/hooks";
 
 interface Props extends RouteProps {
   children: ReactNode;
-  path: string;
+  // path: string;
 }
 
-const AnonymousUserRoute = (props: Props) => {
+const AnonymousUserRoute = ({children,...props}: Props) => {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   return (
     <Route {...props}>
-      {!isAuthenticated ? props.children : <Redirect to="/" />}
+      {!isAuthenticated ? children : <Redirect to="/" />}
     </Route>
   );
 };

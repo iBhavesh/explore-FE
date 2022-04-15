@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Suspense, lazy } from "react";
 import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
-import { useAppDispatch } from "./app/hooks";
+import { useAppDispatch, useAppSelector } from "./app/hooks";
 import Layout from "./components/Layout/Layout";
 import CircularIndeterminate from "./components/UI/CircularIndeterminate";
 import AnonymousUserRoute from "./components/Wrappers/AnonymousUserRoute";
@@ -23,15 +23,22 @@ const SearchResultPage = lazy(() => import("./pages/SearchResultPage"));
 
 function App() {
   const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      dispatch(fetchFollowRequests());
-      dispatch(fetchNotifications());
-    }, 10000);
+    let interval: NodeJS.Timeout | null = null;
+
+    if (isAuthenticated) {
+      interval = setInterval(() => {
+        dispatch(fetchFollowRequests());
+        dispatch(fetchNotifications());
+      }, 10000);
+    }
     return () => {
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
     };
-  }, [dispatch]);
+  }, [dispatch, isAuthenticated]);
+
   return (
     <Router>
       <Layout>

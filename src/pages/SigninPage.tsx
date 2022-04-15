@@ -97,10 +97,10 @@ const SigninPage = () => {
             onSubmit={async (values, { setSubmitting }) => {
               try {
                 const response = await axios.post(
-                  process.env.REACT_APP_API + "user/signin",
+                  process.env.REACT_APP_API + "user/login",
                   values
                 );
-                await dispatch(login(response.data));
+                dispatch(login(response.data));
 
                 if (to) history.replace(to);
                 else history.replace("/");
