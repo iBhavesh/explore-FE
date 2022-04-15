@@ -39,8 +39,7 @@ const userSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchUser.fulfilled, (state, action) => {
-        if (action.payload !== null) state.user = action.payload;
-        else state.user = null;
+        state.user = action.payload;
         state.status = "succeeded";
         state.error = null;
       })
